@@ -1,0 +1,128 @@
+.cardWrapper {
+  perspective: 1000px;
+  width: 25vw;      // largura proporcional à tela
+  height: 45vh;     // altura proporcional à tela
+  max-width: 28vw;  // limite em telas muito grandes
+  max-height: 50vh;
+}
+
+.card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.8s ease-in-out;
+  transform-style: preserve-3d;
+  cursor: pointer;
+
+  &:hover {
+    transform: rotateY(180deg);
+  }
+}
+
+.cardFront,
+.cardBack {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 2vh;
+  overflow: hidden;
+  backface-visibility: hidden;
+  box-shadow: 0 0.5vh 2vh rgba(0, 0, 0, 0.3);
+}
+
+.cardFront {
+  display: flex;
+  flex-direction: column;
+  background: #000;
+  color: #fff;
+
+  img {
+    width: 100%;
+    height: 70%;
+    object-fit: cover;
+  }
+
+  div {
+    padding: 2vh 2vw;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  h3 {
+    font-size: 2.2vh;
+    margin-bottom: 1vh;
+  }
+
+  p {
+    font-size: 1.8vh;
+    color: #ccc;
+  }
+}
+
+.cardBack {
+  background: #111;
+  color: #fff;
+  transform: rotateY(180deg);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  h4 {
+    font-size: 2.2vh;
+    margin-bottom: 2vh;
+  }
+
+  p {
+    font-size: 1.9vh;
+    line-height: 1.4;
+    text-align: center;
+  }
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .cardWrapper {
+    width: 45vw;
+    height: 35vh;
+  }
+
+  .cardFront div,
+  .cardBack {
+    padding: 2vh 3vw;
+  }
+
+  .cardFront h3,
+  .cardBack h4 {
+    font-size: 2vh;
+  }
+
+  .cardFront p,
+  .cardBack p {
+    font-size: 1.6vh;
+  }
+}
+
+@media (max-width: 480px) {
+  .cardWrapper {
+    width: 80vw;
+    height: 40vh;
+  }
+
+  .cardFront div,
+  .cardBack {
+    padding: 1.5vh 3vw;
+  }
+
+  .cardFront h3,
+  .cardBack h4 {
+    font-size: 1.9vh;
+  }
+
+  .cardFront p,
+  .cardBack p {
+    font-size: 1.5vh;
+  }
+}

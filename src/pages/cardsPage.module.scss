@@ -1,0 +1,47 @@
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  background: transparent; 
+}
+
+.header {
+  background: #222;
+  color: #fff;
+  padding: 2vh 3vw;
+  text-align: center;
+  font-size: 3vh;
+  font-weight: bold;
+}
+
+.footer {
+  margin-top: auto;
+  background: #222;
+  color: #fff;
+  padding: 2vh 3vw;
+  text-align: center;
+  font-size: 1.8vh;
+}
+
+.cardsContainer {
+  background-color: transparent;
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  gap: 4vh;
+  padding: 4vh 2vw;
+  max-width: 95vw;
+  margin: 0 auto;
+
+  /* Grid responsivo usando porcentagem e vw */
+  grid-template-columns: repeat(auto-fit, minmax(25vw, 1fr));
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(auto-fit, minmax(45vw, 1fr));
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 80vw;
+  }
+}
