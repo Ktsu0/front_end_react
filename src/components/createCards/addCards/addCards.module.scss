@@ -1,0 +1,127 @@
+.addCardWrapper {
+  perspective: 1000px;
+  width: 25vw;
+  height: 45vh;
+  max-width: 28vw;
+  max-height: 50vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+
+  .addCard {
+    width: 100%;
+    height: 100%;
+    border: 2px dashed rgba(255, 255, 255, 0.4);
+    border-radius: 2vh;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.8);
+      transform: scale(1.05);
+    }
+
+    .plus {
+      font-size: 10vh;
+      font-weight: bold;
+      color: rgba(255, 255, 255, 0.7);
+      transition: color 0.3s ease;
+    }
+
+    &:hover .plus {
+      color: #fff;
+    }
+  }
+}
+
+/* Modal de adicionar card */
+.addCardModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+
+  .modalContent {
+    background: #111;
+    padding: 3vh 3vw;
+    border-radius: 2vh;
+    width: 40vw;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 2vh;
+
+    h2 {
+      color: #fff;
+      text-align: center;
+      margin-bottom: 2vh;
+    }
+
+    label {
+      color: #ccc;
+      font-size: 1.8vh;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      padding: 1vh;
+      border-radius: 1vh;
+      border: none;
+      outline: none;
+      font-size: 1.8vh;
+    }
+
+    button {
+      background: #444;
+      color: #fff;
+      padding: 1vh 2vw;
+      border: none;
+      border-radius: 1vh;
+      cursor: pointer;
+      transition: background 0.3s ease;
+
+      &:hover {
+        background: #666;
+      }
+    }
+  }
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .addCardWrapper {
+    width: 45vw;
+    height: 35vh;
+
+    .addCard .plus {
+      font-size: 7vh;
+    }
+  }
+
+  .addCardModal .modalContent {
+    width: 80vw;
+  }
+}
+
+@media (max-width: 480px) {
+  .addCardWrapper {
+    width: 80vw;
+    height: 40vh;
+
+    .addCard .plus {
+      font-size: 6vh;
+    }
+  }
+}
