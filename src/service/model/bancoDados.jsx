@@ -6,7 +6,7 @@ const useCards = () => {
   // GET - buscar todos os cards
   const fetchCards = async () => {
     try {
-      const res = await fetch("http://localhost:5000/cards");
+      const res = await fetch("http://localhost:3000/series");
       if (!res.ok) throw new Error("Erro ao buscar cards");
       const data = await res.json();
       setCards(data);
@@ -15,10 +15,31 @@ const useCards = () => {
     }
   };
 
+  const searchCards = async (searchTerm) => {
+    if (!searchTerm || searchTerm.trim() === "") {
+      // Se a busca for vazia, busca todos os cards e retorna
+      await fetchCards();
+      return; // Retorna após atualizar o estado global
+    }
+
+    try {
+      const res = await fetch(
+        `http://localhost:3000/series/search?q=${searchTerm}`
+      );
+      if (!res.ok) throw new Error("Erro ao buscar cards por termo");
+      const data = await res.json();
+
+      // 🎯 Atualiza o estado principal 'cards' com os resultados da busca
+      setCards(data);
+    } catch (err) {
+      console.error("Erro ao pesquisar cards:", err);
+      setCards([]); // Limpa a lista em caso de erro
+    }
+  };
   // POST - adicionar card
   const addCard = async (novoCard) => {
     try {
-      const res = await fetch("http://localhost:5000/cards", {
+      const res = await fetch("http://localhost:3000/series", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(novoCard),
@@ -31,25 +52,39 @@ const useCards = () => {
     }
   };
 
+  // POST - adicionar avaliação
+  const addAvaliacao = async (id, avaliacao) => {
+    try {
+      const res = await fetch(`http://localhost:3000/series/${id}/avaliacao`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ avaliacao }),
+      });
+      if (!res.ok) throw new Error("Erro ao adicionar avaliação");
+      console.log(await res.text()); // resposta do backend
+    } catch (err) {
+      console.error("Erro ao enviar avaliação:", err);
+    }
+  };
+
   // PUT - editar card
   const editCard = async (id, updatedCard) => {
     // Certifique-se de que o ID não está no corpo do PUT para json-server, mas sim na URL
-    const { id: _, ...dataToUpdate } = updatedCard; 
+    const { id: _, ...dataToUpdate } = updatedCard;
 
     try {
-      const res = await fetch(`http://localhost:5000/cards/${id}`, {
+      const res = await fetch(`http://localhost:3000/series/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dataToUpdate),
       });
       if (!res.ok) throw new Error("Erro ao editar card");
-      
+
       const data = await res.json();
-      
+
       // O json-server não retorna o ID, então adicionamos ele de volta para a atualização do estado
-      const finalCard = { ...data, id }; 
+      const finalCard = { ...data, id };
       setCards((prev) => prev.map((c) => (c.id === id ? finalCard : c)));
-      
     } catch (err) {
       console.error("Erro ao editar card:", err);
     }
@@ -58,7 +93,7 @@ const useCards = () => {
   // DELETE - remover card
   const deleteCard = async (id) => {
     try {
-      const res = await fetch(`http://localhost:5000/cards/${id}`, {
+      const res = await fetch(`http://localhost:3000/series/${id}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Erro ao deletar card");
@@ -72,6 +107,14 @@ const useCards = () => {
     fetchCards();
   }, []);
 
-  return { cards, addCard, editCard, deleteCard };
+  return {
+    cards,
+    fetchCards,
+    searchCards,
+    addCard,
+    addAvaliacao,
+    editCard,
+    deleteCard,
+  };
 };
 export default useCards;

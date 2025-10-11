@@ -3,7 +3,7 @@
   flex-direction: column;
   min-height: 100vh;
   font-family: Arial, sans-serif;
-  background: transparent; 
+  background: transparent;
 }
 
 .header {
@@ -30,7 +30,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0,0,0,0.7);
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -60,11 +60,21 @@
       transition: background 0.3s ease;
     }
 
-    button:first-of-type { background: #e74c3c; color: #fff; }
-    button:last-of-type { background: #444; color: #fff; }
+    button:first-of-type {
+      background: #e74c3c;
+      color: #fff;
+    }
+    button:last-of-type {
+      background: #444;
+      color: #fff;
+    }
 
-    button:first-of-type:hover { background: #c0392b; }
-    button:last-of-type:hover { background: #666; }
+    button:first-of-type:hover {
+      background: #c0392b;
+    }
+    button:last-of-type:hover {
+      background: #666;
+    }
   }
 }
 
@@ -92,14 +102,14 @@
 
 /* Novo Wrapper para cada Card */
 .cardWrapper {
-  position: relative; 
+  position: relative;
   margin-bottom: 30px;
 }
 
 /* Contêiner dos Botões */
 .cardActions {
   position: absolute;
-  bottom: -30px; 
+  bottom: -30px;
   right: 0;
 
   /* Estilização para os botões */

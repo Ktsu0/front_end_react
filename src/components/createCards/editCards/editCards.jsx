@@ -1,32 +1,45 @@
 import React, { useState, useEffect } from "react";
-import styles from "./../addCards/addCards.module.scss"
+import styles from "./../addCards/addCards.module.scss";
 
-// Recebe o card (cardToEdit) e as funções de edição (onEdit) e fechamento (onClose)
 const EditCardModal = ({ cardToEdit, onEdit, onClose }) => {
-  // Inicializa o estado do form com os dados do card a ser editado
-  const [form, setForm] = useState(cardToEdit || {});
+  const [form, setForm] = useState({
+    id: "",
+    titulo: "",
+    descricao: { temporada: "", tema: "" },
+    detalhes: "",
+    imagem: "",
+  });
 
-  // Atualiza o estado do formulário se o cardToEdit mudar
   useEffect(() => {
     if (cardToEdit) {
-      setForm(cardToEdit);
+      setForm({
+        ...cardToEdit,
+        descricao:
+          typeof cardToEdit.descricao === "object"
+            ? cardToEdit.descricao
+            : { temporada: cardToEdit.descricao || "", tema: "" },
+      });
     }
   }, [cardToEdit]);
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    if (name !== "temporada" && name !== "tema") {
+      setForm({ ...form, [name]: value });
+    } else {
+      setForm({
+        ...form,
+        descricao: { ...form.descricao, [name]: value },
+      });
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Lógica CRÍTICA: Usa o ID EXISTENTE (form.id) para a edição.
-    onEdit(form.id, form); // Chama a função editCard do useCards
-
-    onClose(); // Fecha o modal após a edição
+    onEdit(form.id, form);
+    onClose();
   };
 
-  // Se não houver card para editar, não renderiza nada
   if (!cardToEdit) return null;
 
   return (
@@ -34,22 +47,61 @@ const EditCardModal = ({ cardToEdit, onEdit, onClose }) => {
       <div className={styles.modalContent}>
         <h2>Editar Card: {form.titulo}</h2>
         <form onSubmit={handleSubmit}>
-          {/* Campos do Formulário */}
           <label>Título</label>
-          <input type="text" name="titulo" value={form.titulo} onChange={handleChange} required />
-          
-          <label>Descrição</label>
-          <input type="text" name="descricao" value={form.descricao} onChange={handleChange} required />
+          <input
+            type="text"
+            name="titulo"
+            value={form.titulo}
+            onChange={handleChange}
+            required
+          />
+
+          {/* Temporada e Tema lado a lado */}
+          <div className={styles.row}>
+            <div>
+              <label>Temporada</label>
+              <input
+                type="text"
+                name="temporada"
+                value={form.descricao.temporada}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div>
+              <label>Tema</label>
+              <input
+                type="text"
+                name="tema"
+                value={form.descricao.tema}
+                onChange={handleChange}
+                required
+              />
+            </div>
+          </div>
 
           <label>Detalhes</label>
-          <textarea name="detalhes" value={form.detalhes} onChange={handleChange} required />
+          <textarea
+            name="detalhes"
+            value={form.detalhes}
+            onChange={handleChange}
+            required
+          />
 
           <label>Imagem (URL)</label>
-          <input type="text" name="imagem" value={form.imagem} onChange={handleChange} required />
+          <input
+            type="text"
+            name="imagem"
+            value={form.imagem}
+            onChange={handleChange}
+            required
+          />
 
-          <div style={{ display: "flex", gap: "1vw", justifyContent: "center", marginTop: "2vh" }}>
+          <div className={styles.modalButtons}>
             <button type="submit">Salvar</button>
-            <button type="button" onClick={onClose}>Cancelar</button>
+            <button type="button" onClick={onClose}>
+              Cancelar
+            </button>
           </div>
         </form>
       </div>

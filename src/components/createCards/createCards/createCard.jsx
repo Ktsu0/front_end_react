@@ -1,7 +1,14 @@
-import styles from "./createCard.module.scss"
+import styles from "./createCard.module.scss";
 
-const CreateCard = ({ id, titulo, descricao, detalhes, imagem, onEdit, onDelete }) => {
-  // Objeto 'cardData' contendo todas as propriedades necessárias para a edição.
+const CreateCard = ({
+  id,
+  titulo,
+  descricao,
+  detalhes,
+  imagem,
+  onEdit,
+  onDelete,
+}) => {
   const cardData = { id, titulo, descricao, detalhes, imagem };
 
   return (
@@ -11,35 +18,46 @@ const CreateCard = ({ id, titulo, descricao, detalhes, imagem, onEdit, onDelete 
           <img src={imagem} alt={titulo} />
           <div>
             <h3>{titulo}</h3>
-            <p>{descricao}</p>
+
+            {descricao && typeof descricao === "object" ? (
+              <div className={styles.row}>
+                <p>
+                  <strong>Temporada:</strong>
+                  <br /> {descricao.temporada}
+                </p>
+                <p>
+                  <strong>Tema:</strong>
+                  <br /> {descricao.tema}
+                </p>
+              </div>
+            ) : (
+              <p>{descricao}</p> // caso seja string (cards antigos)
+            )}
           </div>
         </div>
+
         <div className={styles.cardBack}>
           <h4>{titulo}</h4>
           <p>{detalhes}</p>
         </div>
       </div>
-      
-      {/* NOVO: Container para os ícones de Ação */}
+
       <div className={styles.cardActions}>
-        {/* Ícone de Editar */}
-        <span 
-          className={styles.editIcon} 
-          onClick={() => onEdit(cardData)} // Passa o objeto completo do card
+        <span
+          className={styles.editIcon}
+          onClick={() => onEdit(cardData)}
           title="Editar Card"
         >
           ✏️
         </span>
-        {/* Ícone de Deletar */}
-        <span 
-          className={styles.deleteIcon} 
-          onClick={() => onDelete(id)} // Passa apenas o ID para deletar
+        <span
+          className={styles.deleteIcon}
+          onClick={() => onDelete(id)}
           title="Deletar Card"
         >
           🗑️
         </span>
       </div>
-      {/* FIM NOVO */}
     </div>
   );
 };
