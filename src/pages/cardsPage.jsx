@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import styles from "./cardsPage.module.scss";
 // 1. Importações dos NOVOS componentes (o AddCard anterior deve ser excluído ou renomeado)
 import AddCard from "../components/createCards/addCards/addCards";
@@ -6,6 +6,7 @@ import EditCardModal from "../components/createCards/editCards/editCards";
 import CreateCard from "./../components/createCards/createCards/createCard";
 import useCards from "./../service/model/bancoDados";
 import FilterPanel from "../components/filterCard/filter";
+import Header from "./header/header";
 
 const CardsPage = () => {
   const { cards, addCard, editCard, deleteCard } = useCards();
@@ -28,16 +29,15 @@ const CardsPage = () => {
   const handleAdd = (newCardWithId) => addCard(newCardWithId);
 
   // NOVO: Função que aplica filtros vindos do FilterPanel
-  const handleFilter = (filteredListFromPanel) => {
+  const handleFilter = useCallback((filteredListFromPanel) => {
     setFilteredCards(filteredListFromPanel);
-  };
+  }, []);
 
   return (
     <div className={styles.pageContainer}>
-      <header className={styles.header}>Melhores Séries</header>
+      <Header></Header>
 
-      {/* NOVO: Botão e painel de filtros */}
-      <FilterPanel onFilter={handleFilter} />
+      <FilterPanel cards={cards} onFilter={handleFilter} />
 
       <main className={styles.cardsContainer}>
         {filteredCards.map((card) => (

@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 import styles from "./filter.module.scss";
 import useCards from "./../../service/model/bancoDados";
 
-const FilterPanel = ({ onFilter }) => {
-  const { cards } = useCards();
+const FilterPanel = ({ cards, onFilter }) => {
   const [show, setShow] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [temaId, setTemaId] = useState("");
@@ -43,35 +42,29 @@ const FilterPanel = ({ onFilter }) => {
     let temp = [...cards];
     if (searchTerm) {
       const normalizedSearch = normalize(searchTerm);
-      temp = temp.filter((c) => {
-        const title = c.titulo || "";
-        return normalize(title).includes(normalizedSearch);
-      });
+      temp = temp.filter((c) =>
+        normalize(c.titulo || "").includes(normalizedSearch)
+      );
     }
-    if (avaliacao) {
+    if (avaliacao)
       temp = temp.filter((c) => Number(c.avaliacao) >= Number(avaliacao));
-    }
     if (temaId) {
       temp = temp.filter((c) => {
-        const temasRaw = c.descricao?.tema || "";
-        const temasSerie = temasRaw
+        const temasSerie = (c.descricao?.tema || "")
           .split("/")
-          .map((t) => normalize(t))
-          .filter((t) => t);
-
+          .map(normalize)
+          .filter(Boolean);
         return temasSerie.includes(temaId);
       });
     }
+    temp.sort((a, b) =>
+      ordem === "asc"
+        ? a.titulo.localeCompare(b.titulo)
+        : b.titulo.localeCompare(a.titulo)
+    );
 
-    // 3. Ordena alfabeticamente
-    temp.sort((a, b) => {
-      if (ordem === "asc") return a.titulo.localeCompare(b.titulo);
-      return b.titulo.localeCompare(a.titulo);
-    });
-
-    // Envia a lista filtrada/ordenada para o componente pai
     onFilter(temp);
-  }, [searchTerm, temaId, ordem, avaliacao, cards, normalize, onFilter]); // Adicionei normalize e onFilter às dependências para evitar warnings
+  }, [searchTerm, temaId, ordem, avaliacao, cards]);
 
   // Limpar filtros
   const handleReset = () => {
