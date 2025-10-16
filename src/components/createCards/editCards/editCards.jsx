@@ -34,9 +34,10 @@ const EditCardModal = ({ cardToEdit, onEdit, onClose }) => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onEdit(form.id, form);
+    const payload = { ...form, descricao: { ...form.descricao } };
+    await onEdit(form.id, payload);
     onClose();
   };
 
@@ -45,7 +46,7 @@ const EditCardModal = ({ cardToEdit, onEdit, onClose }) => {
   return (
     <div className={styles.addCardModal}>
       <div className={styles.modalContent}>
-        <h2>Editar Card: {form.titulo}</h2>
+        <h2>Editar Card: {form.titulo || "Sem título"}</h2>
         <form onSubmit={handleSubmit}>
           <label>Título</label>
           <input

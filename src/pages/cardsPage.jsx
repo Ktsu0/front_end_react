@@ -19,7 +19,7 @@ const CardsPage = () => {
   }, [cards]);
 
   // Funções de edição
-  const handleEdit = (card) => setEditingCard(card);
+  const handleEdit = (card) => setEditingCard({ ...card });
   const handleCloseEdit = () => setEditingCard(null);
   const handleSaveEdit = (id, updatedCard) => {
     editCard(id, updatedCard);
@@ -44,7 +44,7 @@ const CardsPage = () => {
           <CreateCard
             key={card.id}
             {...card}
-            onEdit={() => handleEdit(card)}
+            onEdit={() => handleEdit({ ...card })}
             onDelete={handleDelete}
           />
         ))}
