@@ -3,6 +3,8 @@ import styles from "./addCards.module.scss";
 
 const AddCard = ({ onAdd }) => {
   const [showModal, setShowModal] = useState(false);
+
+  // 🚀 ATUALIZAÇÃO 1: Adicionar estoque e valorUnitario ao estado inicial
   const [form, setForm] = useState({
     titulo: "",
     descricao: {
@@ -11,36 +13,63 @@ const AddCard = ({ onAdd }) => {
     },
     detalhes: "",
     imagem: "",
+    estoque: 0, // Novo campo
+    valorUnitario: 0.0, // Novo campo
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    let newValue = value;
+
+    // 🚀 ATUALIZAÇÃO 2a: Tratar valores numéricos
+    if (name === "estoque") {
+      // Garante que estoque seja um número inteiro
+      newValue = parseInt(value) || 0;
+    } else if (name === "valorUnitario") {
+      // Garante que o valorUnitario seja um float (aceitando vírgula/ponto)
+      newValue = parseFloat(value.replace(",", ".")) || 0.0;
+    }
 
     if (name === "temporada" || name === "tema") {
       setForm((prev) => ({
         ...prev,
         descricao: {
           ...prev.descricao,
-          [name]: value,
+          [name]: newValue,
         },
       }));
     } else {
-      setForm({ ...form, [name]: value });
+      // 🚀 ATUALIZAÇÃO 2b: Usar newValue para os campos de estoque/valor
+      setForm({ ...form, [name]: newValue });
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const newId = String(Date.now());
-    const newCardWithId = { ...form, id: newId };
-    onAdd(newCardWithId);
 
-    // limpa o formulário
+    // O ID deve ser gerado pelo backend (NestJS) para evitar colisões
+    // No seu código original, você gera o ID no frontend. Se o seu backend espera
+    // que o ID seja gerado lá, remova a linha abaixo.
+    // Se o seu backend espera o ID aqui, mantenha:
+    // const newId = String(Date.now());
+
+    const payload = {
+      ...form,
+      // Garante que os números sejam enviados como tipo number, não string.
+      estoque: parseInt(form.estoque),
+      valorUnitario: parseFloat(form.valorUnitario),
+    };
+
+    onAdd(payload); // Enviamos o formulário completo (sem o ID gerado aqui, confiando no backend)
+
+    // limpa o formulário (resetando os novos campos também)
     setForm({
       titulo: "",
       descricao: { temporada: "", tema: "" },
       detalhes: "",
       imagem: "",
+      estoque: 0,
+      valorUnitario: 0.0,
     });
     setShowModal(false);
   };
@@ -91,6 +120,34 @@ const AddCard = ({ onAdd }) => {
                 </div>
               </div>
 
+              {/* 🚀 ATUALIZAÇÃO 3: Valor Unitário e Estoque lado a lado */}
+              <div className={styles.row}>
+                <div>
+                  <label>Valor Unitário (R$)</label>
+                  <input
+                    type="number"
+                    step="0.01" // Permite decimais
+                    name="valorUnitario"
+                    // Exibe o valor formatado para o usuário (toFixed(2) no valor, não na string)
+                    value={form.valorUnitario}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <div>
+                  <label>Estoque Inicial</label>
+                  <input
+                    type="number"
+                    name="estoque"
+                    min="0"
+                    value={form.estoque}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+              </div>
+              {/* Fim dos novos campos */}
+
               <label>Detalhes</label>
               <textarea
                 name="detalhes"
@@ -108,7 +165,7 @@ const AddCard = ({ onAdd }) => {
                 required
               />
 
-              <div className={styles.buttons}>
+              <div className={styles.modalButtons}>
                 <button type="submit" className={styles.addBtn}>
                   Adicionar
                 </button>

@@ -1,3 +1,6 @@
+/* ======================================= */
+/* ESTILOS DO COMPONENTE ADD CARD (O PLUS) */
+/* ======================================= */
 .addCardWrapper {
   perspective: 1000px;
   width: 25vw;
@@ -37,7 +40,9 @@
   }
 }
 
-/* ======= MODAL ======= */
+/* ======================================= */
+/* ESTILOS DO MODAL DE EDIÇÃO/CRIAÇÃO      */
+/* ======================================= */
 .addCardModal {
   position: fixed;
   top: 0;
@@ -97,12 +102,20 @@
         }
       }
 
+      /* 🚀 NOVO ESTILO PARA INPUTS DESABILITADOS (Valor e Estoque) */
+      input:disabled {
+        background: rgba(255, 255, 255, 0.03);
+        color: #888;
+        cursor: not-allowed;
+        box-shadow: none;
+      }
+
       textarea {
         min-height: 80px;
         resize: none;
       }
 
-      /* 🔹 Linha com Temporada e Tema */
+      /* 🔹 Linha com dois campos (ex: Temporada/Tema e Valor/Estoque) */
       .row {
         display: flex;
         gap: 1vw;
@@ -116,7 +129,8 @@
       }
 
       /* 🔹 Botões */
-      .buttons {
+      .modalButtons {
+        /* Usando o nome da classe do JSX */
         display: flex;
         justify-content: center;
         gap: 1vw;
@@ -132,7 +146,8 @@
           font-size: 1.8vh;
         }
 
-        .addBtn {
+        /* Renomeado 'addBtn' para 'submit' e 'cancelBtn' para 'button' padrão */
+        button[type="submit"] {
           background: #6a4fff;
           color: #fff;
 
@@ -142,7 +157,7 @@
           }
         }
 
-        .cancelBtn {
+        button[type="button"] {
           background: #333;
           color: #ccc;
 
@@ -156,7 +171,9 @@
   }
 }
 
-/* ======= Animação ======= */
+/* ======================================= */
+/* ANIMAÇÃO E RESPONSIVIDADE               */
+/* ======================================= */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -167,7 +184,7 @@
     transform: scale(1);
   }
 }
-/* ======= Responsividade ======= */
+
 @media (max-width: 768px) {
   .addCardWrapper {
     width: 45vw;
@@ -194,13 +211,13 @@
   }
 
   .addCardModal {
-    // Adiciona o seletor principal do modal
     .modalContent {
       width: 90vw;
     }
-    .modalContent .row {
+    .modalContent form .row {
+      /* Corrigido para atingir o .row dentro do form */
       flex-direction: column;
-      gap: 1.5vh; /* Ajustei o gap para melhor espaçamento vertical */
+      gap: 1.5vh;
     }
   }
 }
