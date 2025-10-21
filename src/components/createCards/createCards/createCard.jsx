@@ -79,7 +79,7 @@ const CreateCard = ({
       <div className={styles.cardActions}>
         {isAvailable && (
           <span
-            className={styles.cartIcon}
+            className={styles.cartButton}
             onClick={handleAddToCart}
             title="Adicionar ao Carrinho"
           >

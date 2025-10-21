@@ -1,0 +1,126 @@
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  background: transparent;
+}
+
+.deleteModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  .deleteContent {
+    background: #111;
+    padding: 3vh 3vw;
+    border-radius: 2vh;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 2vh;
+    p {
+      color: #fff;
+      font-size: 1.8vh;
+    }
+    button {
+      padding: 1vh 2vw;
+      border: none;
+      border-radius: 1vh;
+      cursor: pointer;
+      font-size: 1.8vh;
+      margin: 0.5vh;
+      transition: background 0.3s ease;
+    }
+    button:first-of-type {
+      background: #e74c3c;
+      color: #fff;
+    }
+    button:last-of-type {
+      background: #444;
+      color: #fff;
+    }
+    button:first-of-type:hover {
+      background: #c0392b;
+    }
+    button:last-of-type:hover {
+      background: #666;
+    }
+  }
+}
+
+.cardsContainer {
+  background-color: transparent;
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  gap: 4vh;
+  padding: 4vh 2vw;
+  max-width: 95vw;
+  margin: 0 auto;
+  /* Grid responsivo usando porcentagem e vw */
+  grid-template-columns: repeat(auto-fit, minmax(25vw, 1fr));
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(auto-fit, minmax(45vw, 1fr));
+  }
+  @media (max-width: 480px) {
+    grid-template-columns: 80vw;
+  }
+}
+
+/* Novo Wrapper para cada Card */
+
+.cardWrapper {
+  position: relative;
+  margin-bottom: 30px;
+}
+
+/* Contêiner dos Botões */
+
+.cardActions {
+  position: absolute;
+  bottom: -30px;
+  right: 0;
+  /* Estilização para os botões */
+  display: flex;
+  gap: 10px;
+  /* Espaço entre os botões */
+  button {
+    background: #333;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    /* Faz o botão ser redondo */
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.2s ease-in-out;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+    &:hover {
+      background: #555;
+    }
+  }
+  /* Estilos específicos para diferenciação */
+  .editButton {
+    background: #3498db; // Azul
+    &:hover {
+      background: #2980b9;
+    }
+  }
+  .deleteButton {
+    background: #e74c3c; // Vermelho
+    &:hover {
+      background: #c0392b;
+    }
+  }
+}

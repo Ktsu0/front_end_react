@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import styles from "./addCards.module.scss";
 
 const AddCard = ({ onAdd }) => {
@@ -46,13 +46,6 @@ const AddCard = ({ onAdd }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // O ID deve ser gerado pelo backend (NestJS) para evitar colisões
-    // No seu código original, você gera o ID no frontend. Se o seu backend espera
-    // que o ID seja gerado lá, remova a linha abaixo.
-    // Se o seu backend espera o ID aqui, mantenha:
-    // const newId = String(Date.now());
-
     const payload = {
       ...form,
       // Garante que os números sejam enviados como tipo number, não string.
@@ -128,7 +121,6 @@ const AddCard = ({ onAdd }) => {
                     type="number"
                     step="0.01" // Permite decimais
                     name="valorUnitario"
-                    // Exibe o valor formatado para o usuário (toFixed(2) no valor, não na string)
                     value={form.valorUnitario}
                     onChange={handleChange}
                     required

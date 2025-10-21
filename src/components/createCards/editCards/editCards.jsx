@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import styles from "./../addCards/addCards.module.scss"; // Assumindo que este é o CSS correto
 
 const EditCardModal = ({ cardToEdit, onEdit, onClose }) => {

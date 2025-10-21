@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:5000/series";
+const API_BASE_URL = "http://localhost:5000/animes";
 
 // GET - buscar todos os cards
 export async function fetchAllCards() {

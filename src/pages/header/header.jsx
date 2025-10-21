@@ -1,7 +1,8 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "./header.module.scss";
 import LoginModal from "./../loginPage/loginModal";
-import { useAuth } from "./../../service/context/authContext";
+import { useAuth } from "./../../hooks/hookLogin";
 
 const Header = () => {
   const [showLogin, setShowLogin] = useState(false);
@@ -15,18 +16,36 @@ const Header = () => {
     }
   };
 
+  const navigate = useNavigate();
+
+  const handleNavigation = (path) => {
+    navigate(path);
+  };
+
   return (
     <header className={styles.header}>
       <h1 className={styles.title}>Melhores Séries</h1>
+
+      <div className={styles.navigationButtons}>
+        <button
+          className={styles.navButton}
+          onClick={() => handleNavigation("/series")}
+        >
+          Séries
+        </button>
+        <button
+          className={styles.navButton}
+          onClick={() => handleNavigation("/anime")}
+        >
+          Anime
+        </button>
+      </div>
 
       <button className={styles.loginBtn} onClick={handleButtonClick}>
         {user ? "Logout" : "Entrar"}
       </button>
 
-      {showLogin &&
-        !user && ( // só mostra modal se não estiver logado
-          <LoginModal onClose={() => setShowLogin(false)} />
-        )}
+      {showLogin && !user && <LoginModal onClose={() => setShowLogin(false)} />}
     </header>
   );
 };

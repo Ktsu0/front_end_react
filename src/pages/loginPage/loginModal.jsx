@@ -1,26 +1,29 @@
 import { useState } from "react";
 import styles from "./loginModal.module.scss";
-import { useAuth } from "./../../service/context/authContext";
+import { useAuth } from "../../hooks/hookLogin";
 
 const LoginModal = ({ onClose }) => {
   const [isRegister, setIsRegister] = useState(false);
 
-  // Campos de login
+  // Campos de login/registro (Lógica de estado de UI)
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
 
-  // Campos de registro
+  // Campos de registro (Lógica de estado de UI)
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [confirmSenha, setConfirmSenha] = useState("");
 
-  const { login, register, loginWithGoogle } = useAuth();
+  const { login, register, loginWithGoogle, loading } = useAuth(); // Obtém as funções do Contexto
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (loading) return; // Evita envio duplo
+
     try {
       if (isRegister) {
+        // Lógica de validação de UI
         if (!firstName || !lastName) {
           alert("Preencha nome e sobrenome!");
           return;
@@ -34,24 +37,23 @@ const LoginModal = ({ onClose }) => {
           return;
         }
 
-        await register(email, senha, firstName, lastName); // Passando os dados para registro
+        // Chamada de lógica (Função do Contexto)
+        await register(email, senha, firstName, lastName);
         alert("Conta criada com sucesso!");
-        // Limpar campos
-        setFirstName("");
-        setLastName("");
-        setEmail("");
-        setSenha("");
-        setConfirmSenha("");
-        onClose(); // Volta para login
       } else {
+        // Chamada de lógica (Função do Contexto)
         await login(email, senha);
-        // Limpar campos
-        setEmail("");
-        setSenha("");
-        onClose(); // fecha o modal após login
       }
+
+      // Limpar campos e fechar modal após sucesso
+      setFirstName("");
+      setLastName("");
+      setEmail("");
+      setSenha("");
+      setConfirmSenha("");
+      onClose();
     } catch (err) {
-      alert(err.message);
+      alert(err.message); // Trata o erro (lançado pelo Contexto)
     }
   };
 
@@ -68,25 +70,24 @@ const LoginModal = ({ onClose }) => {
           {isRegister && (
             <>
               <div className={styles.nameFields}>
-                {" "}
                 <label>
-                  Nome:{" "}
+                  Nome:
                   <input
                     type="text"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     required
-                  />{" "}
-                </label>{" "}
+                  />
+                </label>
                 <label>
-                  Sobrenome:{" "}
+                  Sobrenome:
                   <input
                     type="text"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     required
-                  />{" "}
-                </label>{" "}
+                  />
+                </label>
               </div>
             </>
           )}
@@ -129,8 +130,8 @@ const LoginModal = ({ onClose }) => {
             </div>
           )}
 
-          <button type="submit" className={styles.loginBtn}>
-            {isRegister ? "Registrar" : "Entrar"}
+          <button type="submit" className={styles.loginBtn} disabled={loading}>
+            {loading ? "Aguarde..." : isRegister ? "Registrar" : "Entrar"}
           </button>
 
           {!isRegister && (
@@ -138,6 +139,7 @@ const LoginModal = ({ onClose }) => {
               type="button"
               className={styles.googleBtn}
               onClick={loginWithGoogle}
+              disabled={loading}
             >
               🔵 Entrar com Google
             </button>

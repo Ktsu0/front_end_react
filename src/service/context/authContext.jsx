@@ -1,64 +1,33 @@
-import { createContext, useState, useContext } from "react";
+const API_BASE_URL = "http://localhost:5000";
 
-const AuthContext = createContext();
+// Função genérica para lidar com a resposta da API e erros
+async function handleAuthResponse(res) {
+  const data = await res.json();
+  if (!res.ok) {
+    // Lança um erro com a mensagem da API para ser capturado no Contexto/Hook
+    throw new Error(
+      data.message || "Erro de conexão ou credenciais inválidas."
+    );
+  }
+  return data; // Retorna os dados do usuário/token
+}
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(false);
+// POST - Login de Usuário
+export async function loginApi(email, senha) {
+  const res = await fetch(`${API_BASE_URL}/users/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password: senha }),
+  });
+  return handleAuthResponse(res);
+}
 
-  const login = async (email, senha) => {
-    setLoading(true);
-    try {
-      const res = await fetch("http://localhost:5000/users/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password: senha }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Erro ao logar");
-      setUser(data);
-      localStorage.setItem("user", JSON.stringify(data));
-      return data;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const register = async (email, senha, firstName, lastName) => {
-    setLoading(true);
-    try {
-      const res = await fetch("http://localhost:5000/users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password: senha, firstName, lastName }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Erro ao registrar");
-      setUser(data);
-      localStorage.setItem("user", JSON.stringify(data));
-      return data;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loginWithGoogle = async () => {
-    alert("Login com Google ainda não implementado 😅");
-  };
-
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("user");
-  };
-
-  return (
-    <AuthContext.Provider
-      value={{ user, loading, login, register, loginWithGoogle, logout }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
-};
-
-// Hook para consumir o contexto
-export const useAuth = () => useContext(AuthContext);
+// POST - Registro de Usuário
+export async function registerApi(email, senha, firstName, lastName) {
+  const res = await fetch(`${API_BASE_URL}/users`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password: senha, firstName, lastName }),
+  });
+  return handleAuthResponse(res);
+}

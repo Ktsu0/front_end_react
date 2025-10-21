@@ -55,7 +55,6 @@
 .headerRow,
 .itemRow {
   display: grid;
-  /* Colunas: Checkbox | Item (Título) | Qtd. | Preço Unitário | Subtotal | Excluir */
   grid-template-columns: 30px 3fr 1fr 1.5fr 1.5fr 40px;
   align-items: center;
   padding: 10px 0;
@@ -104,14 +103,11 @@
   border-radius: 5px;
   background: #111;
   color: #fff;
-
-  /* Remove as setas de incremento/decremento no Chrome */
   &::-webkit-outer-spin-button,
   &::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
   }
-  /* Remove as setas de incremento/decremento no Firefox */
   &[type="number"] {
     -moz-appearance: textfield;
   }
@@ -165,7 +161,7 @@
 }
 
 .totalValue {
-  color: #00e676; /* Verde para destaque do total */
+  color: #00e676;
   margin-left: 10px;
 }
 
@@ -194,7 +190,7 @@
 }
 
 .checkoutBtn {
-  background: #ff5722; /* Laranja/Vermelho (Destaque principal) */
+  background: #ff5722;
   color: white;
   border: none;
 
