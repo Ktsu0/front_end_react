@@ -49,7 +49,7 @@ const CartModal = ({ onClose, removerDoCarrinho, atualizarQuantidade }) => {
         <button className={styles.closeButton} onClick={onClose}>
           &times;
         </button>
-        <h2>Seu Carrinho de Compras (Shopee Style)</h2>
+        <h2>Seu Carrinho de Compras</h2>
 
         {!isCarrinhoVazio ? (
           <>
