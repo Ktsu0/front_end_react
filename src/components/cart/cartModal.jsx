@@ -1,19 +1,24 @@
 import { useState, useCallback } from "react";
 import styles from "./cartModal.module.scss";
-
 import { useCarrinho } from "./../../service/context/useCarrinho";
 
-const CartModal = ({ onClose, removerDoCarrinho, atualizarQuantidade }) => {
-  const { carrinho, validacao, loadingValidacao, finalizarCompraAPI } =
-    useCarrinho();
+const CartModal = ({ onClose }) => {
+  const {
+    carrinho,
+    validacao,
+    loadingValidacao,
+    finalizarCompraAPI,
+    removerDoCarrinho,
+    atualizarQuantidade,
+  } = useCarrinho();
 
+  // Guardamos a seleção como `${tipo}:${produtoId}` para evitar conflitos
   const [itensSelecionados, setItensSelecionados] = useState([]);
 
-  const handleToggleSelect = useCallback((serieId) => {
+  const handleToggleSelect = useCallback((item) => {
+    const key = `${item.tipo}:${item.produtoId}`;
     setItensSelecionados((prev) =>
-      prev.includes(serieId)
-        ? prev.filter((id) => id !== serieId)
-        : [...prev, serieId]
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
     );
   }, []);
 
@@ -28,19 +33,22 @@ const CartModal = ({ onClose, removerDoCarrinho, atualizarQuantidade }) => {
         `Tem certeza que deseja remover ${itensSelecionados.length} itens do carrinho?`
       )
     ) {
-      itensSelecionados.forEach((id) => removerDoCarrinho(id));
+      itensSelecionados.forEach((key) => {
+        const [tipo, produtoId] = key.split(":");
+        removerDoCarrinho(produtoId, tipo);
+      });
       setItensSelecionados([]);
     }
   }, [itensSelecionados, removerDoCarrinho]);
 
   const handleComprar = useCallback(async () => {
     if (!validacao || validacao.items.length === 0) return;
-
     await finalizarCompraAPI();
   }, [validacao, finalizarCompraAPI]);
 
   if (carrinho.length > 0 && loadingValidacao)
     return <div className={styles.loading}>Carregando validação...</div>;
+
   const isCarrinhoVazio = !validacao || validacao.items.length === 0;
 
   return (
@@ -63,52 +71,61 @@ const CartModal = ({ onClose, removerDoCarrinho, atualizarQuantidade }) => {
             </div>
 
             <div className={styles.itemList}>
-              {validacao.items.map((item) => (
-                <div key={item.serieId} className={styles.itemRow}>
-                  <input
-                    type="checkbox"
-                    checked={itensSelecionados.includes(item.serieId)}
-                    onChange={() => handleToggleSelect(item.serieId)}
-                  />
-                  <div className={styles.itemInfo}>
-                    <p>{item.titulo}</p>
-                    <p className={styles.stockAlert}>
-                      Estoque: {item.estoqueDisponivel}
-                    </p>
-                  </div>
-                  <div className={styles.quantityControl}>
+              {validacao.items.map((item) => {
+                const key = `${item.tipo}:${item.produtoId}`;
+                return (
+                  <div key={key} className={styles.itemRow}>
                     <input
-                      type="number"
-                      min="1"
-                      max={item.estoqueDisponivel}
-                      value={item.quantidadeDesejada}
-                      onChange={(e) =>
-                        atualizarQuantidade(
-                          item.serieId,
-                          Number(e.target.value)
-                        )
-                      }
+                      type="checkbox"
+                      checked={itensSelecionados.includes(key)}
+                      onChange={() => handleToggleSelect(item)}
                     />
+                    <div className={styles.itemInfo}>
+                      <p>{item.titulo}</p>
+                      <p className={styles.stockAlert}>
+                        Estoque: {item.estoqueDisponivel}
+                      </p>
+                    </div>
+                    <div className={styles.quantityControl}>
+                      <input
+                        type="number"
+                        min="1"
+                        max={item.estoqueDisponivel}
+                        value={item.quantidadeDesejada}
+                        onChange={(e) =>
+                          atualizarQuantidade(
+                            item.produtoId,
+                            item.tipo,
+                            Number(e.target.value)
+                          )
+                        }
+                      />
+                    </div>
+
+                    <span className={styles.valueCell}>
+                      R$ {item.valorUnitario.toFixed(2)}
+                    </span>
+
+                    <span className={styles.valueCell}>
+                      R$
+                      {(item.valorUnitario * item.quantidadeDesejada).toFixed(
+                        2
+                      )}
+                    </span>
+
+                    <button
+                      className={styles.deleteItemButton}
+                      onClick={() =>
+                        removerDoCarrinho(item.produtoId, item.tipo)
+                      }
+                    >
+                      🗑️
+                    </button>
                   </div>
-
-                  <span className={styles.valueCell}>
-                    R$ {item.valorUnitario.toFixed(2)}
-                  </span>
-
-                  <span className={styles.valueCell}>
-                    R$
-                    {(item.valorUnitario * item.quantidadeDesejada).toFixed(2)}
-                  </span>
-
-                  <button
-                    className={styles.deleteItemButton}
-                    onClick={() => removerDoCarrinho(item.serieId)}
-                  >
-                    🗑️
-                  </button>
-                </div>
-              ))}
+                );
+              })}
             </div>
+
             {validacao.validacao.erros.length > 0 && (
               <div className={styles.errorBox}>
                 <h4>❌ Problemas no Carrinho:</h4>
@@ -119,6 +136,7 @@ const CartModal = ({ onClose, removerDoCarrinho, atualizarQuantidade }) => {
                 </ul>
               </div>
             )}
+
             <div className={styles.footerActions}>
               <div className={styles.totalInfo}>
                 <p>Total de Itens: {validacao.validacao.totalItens}</p>
@@ -157,4 +175,5 @@ const CartModal = ({ onClose, removerDoCarrinho, atualizarQuantidade }) => {
     </div>
   );
 };
+
 export default CartModal;

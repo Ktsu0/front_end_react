@@ -53,15 +53,14 @@
   min-height: 100%;
   z-index: 1;
   transform: translate(-50%, -50%);
-  width: 150vw;
-  height: 150vh;
-  min-width: 100%;
-  min-height: 100%;
+  width: 122vw;
+  height: 122vh;
 }
 .contentOverlay {
+  width: 120vw;
+  height: 120vh;
   position: relative;
   z-index: 10;
-  padding: 50px 20px;
   color: white;
   flex-grow: 1;
   display: flex;
@@ -80,6 +79,25 @@
   padding-bottom: 6vh;
   opacity: 0;
   animation: macaco 60s infinite ease-in-out;
+}
+
+.soundToggle {
+  position: absolute;
+  left: 10%;
+  bottom: -5%;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-bottom: 20px;
+  transition: background 0.3s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.4);
+  }
 }
 
 @keyframes macaco {
@@ -102,23 +120,5 @@
   }
   51% {
     opacity: 0;
-  }
-}
-.soundToggle {
-  position: absolute;
-  left: -120%;
-  bottom: -5%;
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  border: 1px solid white;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1rem;
-  margin-bottom: 20px;
-  transition: background 0.3s;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.4);
   }
 }

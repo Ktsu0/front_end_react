@@ -5,7 +5,7 @@ const FilterPanel = ({ cards, onFilter }) => {
   const [show, setShow] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [temaId, setTemaId] = useState("");
-  const [ordem, setOrdem] = useState("asc");
+  const [ordem, setOrdem] = useState("normal");
   const [avaliacao, setAvaliacao] = useState("");
 
   // Normaliza o texto (igual ao backend)
@@ -56,11 +56,11 @@ const FilterPanel = ({ cards, onFilter }) => {
         return temasSerie.includes(temaId);
       });
     }
-    temp.sort((a, b) =>
-      ordem === "asc"
-        ? a.titulo.localeCompare(b.titulo)
-        : b.titulo.localeCompare(a.titulo)
-    );
+    if (ordem === "asc") {
+      temp.sort((a, b) => a.titulo.localeCompare(b.titulo));
+    } else if (ordem === "desc") {
+      temp.sort((a, b) => b.titulo.localeCompare(a.titulo));
+    }
 
     onFilter(temp);
   }, [searchTerm, temaId, ordem, avaliacao, cards]);
@@ -69,7 +69,7 @@ const FilterPanel = ({ cards, onFilter }) => {
   const handleReset = () => {
     setSearchTerm("");
     setTemaId("");
-    setOrdem("asc");
+    setOrdem("");
     setAvaliacao("");
   };
 
@@ -119,6 +119,7 @@ const FilterPanel = ({ cards, onFilter }) => {
             value={ordem}
             onChange={(e) => setOrdem(e.target.value)}
           >
+            <option value="normal">Sem ordenação</option>
             <option value="asc">A → Z (Crescente)</option>
             <option value="desc">Z → A (Decrescente)</option>
           </select>

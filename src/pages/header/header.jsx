@@ -23,7 +23,7 @@ const Header = () => {
   };
 
   return (
-    <header className={styles.header}>
+    <header id="header" className={styles.header}>
       <h1 className={styles.title}>Melhores Séries</h1>
 
       <div className={styles.navigationButtons}>

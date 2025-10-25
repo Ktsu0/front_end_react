@@ -13,72 +13,81 @@ const BASE_URL = "http://localhost:5000";
 const CarrinhoContext = createContext();
 
 export const CarrinhoProvider = ({ children, fetchCards }) => {
-  // Estado principal do carrinho (itens no frontend)
   const [carrinho, setCarrinho] = useState([]);
-  // Estado para controlar a abertura/fechamento do modal
   const [modalAberto, setModalAberto] = useState(false);
-  // Estado para armazenar os dados validados (preços, totais, erros) da API
   const [validacao, setValidacao] = useState(null);
   const [loadingValidacao, setLoadingValidacao] = useState(false);
 
   // -----------------------------------------------------------
-  // 1. Funções de Manipulação Local
+  // Funções de Manipulação Local
   // -----------------------------------------------------------
 
   const adicionarAoCarrinho = useCallback((cardData, quantidade = 1) => {
     setCarrinho((prevCarrinho) => {
+      // Verifica se já existe um item com mesmo id e tipo
       const itemExistente = prevCarrinho.find(
-        (item) => item.id === cardData.id
+        (item) => item.produtoId === cardData.id && item.tipo === cardData.tipo
       );
-      const estoqueDisponivel = cardData.estoque;
 
       if (itemExistente) {
-        const novaQuantidade = itemExistente.quantidade + quantidade;
+        const novaQuantidade = itemExistente.quantidadeDesejada + quantidade;
 
-        if (novaQuantidade > estoqueDisponivel) {
+        if (novaQuantidade > cardData.estoque) {
           alert(
-            `Não é possível adicionar mais. Limite de estoque é ${estoqueDisponivel} unidades.`
+            `Não é possível adicionar mais. Limite de estoque é ${cardData.estoque} unidades.`
           );
           return prevCarrinho;
         }
 
         return prevCarrinho.map((item) =>
-          item.id === cardData.id
-            ? { ...item, quantidade: novaQuantidade }
+          item.produtoId === cardData.id && item.tipo === cardData.tipo
+            ? { ...item, quantidadeDesejada: novaQuantidade }
             : item
         );
       } else {
-        if (quantidade > estoqueDisponivel) {
+        if (quantidade > cardData.estoque) {
           alert(
-            `Não é possível adicionar. Limite de estoque é ${estoqueDisponivel} unidades.`
+            `Não é possível adicionar. Limite de estoque é ${cardData.estoque} unidades.`
           );
           return prevCarrinho;
         }
-        return [...prevCarrinho, { ...cardData, quantidade }];
+        return [
+          ...prevCarrinho,
+          {
+            produtoId: cardData.id,
+            titulo: cardData.titulo,
+            valorUnitario: cardData.valorUnitario,
+            quantidadeDesejada: quantidade,
+            estoqueDisponivel: cardData.estoque,
+            tipo: cardData.tipo,
+          },
+        ];
       }
     });
   }, []);
 
-  const removerDoCarrinho = useCallback((serieId) => {
+  const removerDoCarrinho = useCallback((produtoId, tipo) => {
     setCarrinho((prevCarrinho) =>
-      prevCarrinho.filter((item) => item.id !== serieId)
+      prevCarrinho.filter(
+        (item) => !(item.produtoId === produtoId && item.tipo === tipo)
+      )
     );
   }, []);
 
   const atualizarQuantidade = useCallback(
-    (serieId, novaQuantidade) => {
+    (produtoId, tipo, novaQuantidade) => {
       if (novaQuantidade <= 0) {
-        removerDoCarrinho(serieId);
+        removerDoCarrinho(produtoId, tipo);
         return;
       }
 
       setCarrinho((prevCarrinho) =>
         prevCarrinho.map((item) => {
-          if (item.id === serieId) {
-            const estoqueMaximo = item.estoque;
+          if (item.produtoId === produtoId && item.tipo === tipo) {
+            const estoqueMaximo = item.estoqueDisponivel;
             return {
               ...item,
-              quantidade: Math.min(novaQuantidade, estoqueMaximo),
+              quantidadeDesejada: Math.min(novaQuantidade, estoqueMaximo),
             };
           }
           return item;
@@ -94,14 +103,18 @@ export const CarrinhoProvider = ({ children, fetchCards }) => {
   }, []);
 
   // -----------------------------------------------------------
-  // 2. Comunicação com a API (Validação)
+  // Comunicação com API
   // -----------------------------------------------------------
 
   const validarCarrinhoAPI = useCallback(async () => {
     const itensParaAPI = carrinho.map((item) => ({
-      id: item.id,
-      quantidade: item.quantidade,
+      id: item.produtoId,
+      quantidade: item.quantidadeDesejada,
+      tipo: item.tipo,
     }));
+
+    // 🔹 Log do que será enviado
+    console.log("Itens enviados para validação:", itensParaAPI);
 
     if (itensParaAPI.length === 0) {
       setValidacao(null);
@@ -111,37 +124,30 @@ export const CarrinhoProvider = ({ children, fetchCards }) => {
     setLoadingValidacao(true);
 
     try {
-      // 🚀 Endpoint correto: /series/carrinho/validar
-      const res = await fetch(`${BASE_URL}/series/carrinho/validar`, {
+      const res = await fetch(`${BASE_URL}/carrinho/validar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(itensParaAPI),
       });
 
       const data = await res.json();
+
+      // 🔹 Log do que vem do backend
+      console.log("Resposta do backend:", data);
+
       if (!res.ok)
         throw new Error(data.message || "Erro ao validar o carrinho.");
 
       setValidacao(data);
     } catch (error) {
       console.error("Erro na validação da API:", error);
-      // Mantém o estado de validação anterior ou define como nulo em caso de falha de conexão
       setValidacao(null);
     } finally {
       setLoadingValidacao(false);
     }
-  }, [carrinho]); // Dependência: Roda sempre que o estado local do carrinho muda
+  }, [carrinho]);
 
-  // -----------------------------------------------------------
-  // 3. Comunicação com a API (Compra)
-  // -----------------------------------------------------------
-
-  /**
-   * Finaliza a compra chamando o endpoint de transação no Backend.
-   * 💡 Encapsulado em useCallback
-   */
   const finalizarCompraAPI = useCallback(async () => {
-    // Revalidação de segurança no Frontend:
     if (
       !validacao ||
       validacao.items.length === 0 ||
@@ -156,15 +162,14 @@ export const CarrinhoProvider = ({ children, fetchCards }) => {
       return;
     }
 
-    // Mapeia o carrinho para o formato da API
     const itensParaAPI = carrinho.map((item) => ({
-      id: item.id,
-      quantidade: item.quantidade,
+      id: item.produtoId,
+      quantidade: item.quantidadeDesejada,
+      tipo: item.tipo,
     }));
 
     try {
-      // 🚀 Endpoint correto: /series/carrinho/comprar
-      const res = await fetch(`${BASE_URL}/series/carrinho/comprar`, {
+      const res = await fetch(`${BASE_URL}/carrinho/comprar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(itensParaAPI),
@@ -172,7 +177,6 @@ export const CarrinhoProvider = ({ children, fetchCards }) => {
 
       const data = await res.json();
 
-      // Verifica se houve falha de compra (código HTTP != 2xx ou mensagem de estoque)
       if (
         !res.ok ||
         (Array.isArray(data) && data[0].startsWith("Estoque insuficiente"))
@@ -182,20 +186,15 @@ export const CarrinhoProvider = ({ children, fetchCards }) => {
             (data.message ||
               (Array.isArray(data) ? data.join("\n") : "Erro desconhecido"))
         );
-        // Força nova validação para refletir o estoque atual após a tentativa de compra
         validarCarrinhoAPI();
         return;
       }
 
-      // Sucesso na compra
       alert(Array.isArray(data) ? data[0] : "Compra finalizada com sucesso!");
-      limparCarrinho(); // Limpa o estado local
+      limparCarrinho();
       setModalAberto(false);
 
-      // 💡 Se 'fetchCards' foi passado como prop para o Provider, execute-o:
-      if (fetchCards) {
-        fetchCards();
-      }
+      if (fetchCards) fetchCards();
     } catch (error) {
       alert("Erro ao finalizar a compra.");
       console.error("Erro de API na compra:", error);
@@ -206,9 +205,10 @@ export const CarrinhoProvider = ({ children, fetchCards }) => {
     validarCarrinhoAPI();
   }, [validarCarrinhoAPI]);
 
-  const totalItensCarrinho = useMemo(() => {
-    return carrinho.reduce((total, item) => total + item.quantidade, 0);
-  }, [carrinho]);
+  const totalItensCarrinho = useMemo(
+    () => carrinho.reduce((total, item) => total + item.quantidadeDesejada, 0),
+    [carrinho]
+  );
 
   const value = useMemo(
     () => ({
@@ -217,15 +217,12 @@ export const CarrinhoProvider = ({ children, fetchCards }) => {
       modalAberto,
       loadingValidacao,
       totalItensCarrinho,
-      // Funções de UI
       abrirModal: () => setModalAberto(true),
       fecharModal: () => setModalAberto(false),
-      // Funções de manipulação local
       adicionarAoCarrinho,
       removerDoCarrinho,
       atualizarQuantidade,
       limparCarrinho,
-      // Funções de API
       finalizarCompraAPI,
       validarCarrinhoAPI,
     }),
@@ -251,5 +248,4 @@ export const CarrinhoProvider = ({ children, fetchCards }) => {
   );
 };
 
-// Hook para consumir o contexto
 export const useCarrinho = () => useContext(CarrinhoContext);

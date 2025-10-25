@@ -1,126 +1,126 @@
 .overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 98;
-    /* Abaixo do painel (99) */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 98;
+  /* Abaixo do painel (99) */
 }
 
 .toggleButton {
-    position: fixed;
-    top: 8%;
-    right: 0;
-    z-index: 100; // Sempre visível
-    background: #333; // Tom escuro
-    color: #fff;
-    border: none;
-    padding: 1vh 1vw;
-    border-radius: 8px 0 0 8px;
-    cursor: pointer;
-    font-size: 1.5rem;
-    box-shadow: -2px 2px 8px rgba(0, 0, 0, 0.5);
-    transition: background 0.3s, transform 0.1s;
-    &:hover {
-        background: #444;
-    }
+  position: fixed;
+  top: 15%;
+  right: 0;
+  z-index: 100; // Sempre visível
+  background: #333; // Tom escuro
+  color: #fff;
+  border: none;
+  padding: 1vh 1vw;
+  border-radius: 8px 0 0 8px;
+  cursor: pointer;
+  font-size: 1.5rem;
+  box-shadow: -2px 2px 8px rgba(0, 0, 0, 0.5);
+  transition: background 0.3s, transform 0.1s;
+  &:hover {
+    background: #444;
+  }
 }
 
 .panel {
-    position: fixed;
-    top: 0;
-    right: -30%;
-    width: 20vw;
-    height: 100%;
-    background: #0d0d0d;
-    color: #e0e0e0;
-    padding: 3vh 2vw;
-    transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1); // Animação mais suave
-    box-shadow: -4px 0 15px rgba(0, 0, 0, 0.7);
-    display: flex;
-    flex-direction: column;
-    gap: 2vh;
-    z-index: 99;
-    &.open {
-        right: 0;
-    }
-    h3 {
-        color: #fff;
-        margin-bottom: 3vh;
-        padding-bottom: 1vh;
-        border-bottom: 1px solid #222;
-        text-align: center;
-        font-size: 2.2vh;
-        font-weight: 600;
-    }
+  position: fixed;
+  top: 0;
+  right: -30%;
+  width: 20vw;
+  height: 100%;
+  background: #0d0d0d;
+  color: #e0e0e0;
+  padding: 3vh 2vw;
+  transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1); // Animação mais suave
+  box-shadow: -4px 0 15px rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  gap: 2vh;
+  z-index: 99;
+  &.open {
+    right: 0;
+  }
+  h3 {
+    color: #fff;
+    margin-bottom: 3vh;
+    padding-bottom: 1vh;
+    border-bottom: 1px solid #222;
+    text-align: center;
+    font-size: 2.2vh;
+    font-weight: 600;
+  }
 }
 
 .filterGroup {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 1.5vh;
-    label {
-        font-size: 1.7vh;
-        margin-bottom: 0.8vh;
-        color: #aaa;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.5vh;
+  label {
+    font-size: 1.7vh;
+    margin-bottom: 0.8vh;
+    color: #aaa;
+  }
+  select,
+  input[type="number"] {
+    padding: 1vh;
+    border-radius: 6px;
+    border: 1px solid #222;
+    outline: none;
+    background: #1a1a1a;
+    color: #fff;
+    font-size: 1.8vh;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    &:focus {
+      border-color: #555;
+      box-shadow: 0 0 5px rgba(100, 100, 100, 0.5);
     }
-    select,
-    input[type="number"] {
-        padding: 1vh;
-        border-radius: 6px;
-        border: 1px solid #222;
-        outline: none;
-        background: #1a1a1a;
-        color: #fff;
-        font-size: 1.8vh;
-        transition: border-color 0.3s, box-shadow 0.3s;
-        &:focus {
-            border-color: #555;
-            box-shadow: 0 0 5px rgba(100, 100, 100, 0.5);
-        }
-    }
+  }
 }
 
 .filterGroup {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 1.5vh;
-    /* Estilização para Input de Texto/Número e Select */
-    select,
-    input[type="number"],
-    input[type="text"] {
-        padding: 1vh;
-        border-radius: 6px;
-        border: 1px solid #222;
-        outline: none;
-        background: #1a1a1a;
-        color: #fff;
-        font-size: 1.8vh;
-        transition: border-color 0.3s, box-shadow 0.3s;
-        &:focus {
-            border-color: #555;
-            box-shadow: 0 0 5px rgba(100, 100, 100, 0.5);
-        }
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.5vh;
+  /* Estilização para Input de Texto/Número e Select */
+  select,
+  input[type="number"],
+  input[type="text"] {
+    padding: 1vh;
+    border-radius: 6px;
+    border: 1px solid #222;
+    outline: none;
+    background: #1a1a1a;
+    color: #fff;
+    font-size: 1.8vh;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    &:focus {
+      border-color: #555;
+      box-shadow: 0 0 5px rgba(100, 100, 100, 0.5);
     }
+  }
 }
 
 .resetButton {
-    margin-top: 3vh; // Espaçamento antes do botão
-    background: #444;
-    color: #fff;
-    border: none;
-    padding: 1.5vh;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 1.8vh;
-    transition: background 0.3s, transform 0.1s;
-    // Botão de Limpar mais chamativo (opcional)
-    background: #e74c3c;
-    &:hover {
-        background: #c0392b;
-        transform: translateY(-2px);
-    }
+  margin-top: 3vh; // Espaçamento antes do botão
+  background: #444;
+  color: #fff;
+  border: none;
+  padding: 1.5vh;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1.8vh;
+  transition: background 0.3s, transform 0.1s;
+  // Botão de Limpar mais chamativo (opcional)
+  background: #e74c3c;
+  &:hover {
+    background: #c0392b;
+    transform: translateY(-2px);
+  }
 }

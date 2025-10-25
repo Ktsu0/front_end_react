@@ -61,9 +61,10 @@
   justify-content: center;
   align-items: center;
   gap: 4vh;
-  padding: 4vh 2vw;
+  padding: 20vh 2vw;
   max-width: 95vw;
   margin: 0 auto;
+
   /* Grid responsivo usando porcentagem e vw */
   grid-template-columns: repeat(auto-fit, minmax(25vw, 1fr));
   @media (max-width: 768px) {
