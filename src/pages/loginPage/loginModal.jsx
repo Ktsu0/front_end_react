@@ -2,7 +2,9 @@ import { useState } from "react";
 import styles from "./loginModal.module.scss";
 import { useAuth } from "../../hooks/hookLogin";
 
-const LoginModal = ({ onClose }) => {
+// 💡 1. Adicione onLoginSuccess como um prop (ele é opcional,
+//    pois o modal também é usado pelo botão de login do header, que só fecha o modal)
+const LoginModal = ({ onClose, onLoginSuccess }) => {
   const [isRegister, setIsRegister] = useState(false);
 
   // Campos de login/registro (Lógica de estado de UI)
@@ -39,22 +41,31 @@ const LoginModal = ({ onClose }) => {
 
         // Chamada de lógica (Função do Contexto)
         await register(email, senha, firstName, lastName);
-        alert("Conta criada com sucesso!");
+        // ⚠️ REMOVIDO: alert("Conta criada com sucesso!");
       } else {
         // Chamada de lógica (Função do Contexto)
         await login(email, senha);
       }
 
-      // Limpar campos e fechar modal após sucesso
+      // Limpar campos
       setFirstName("");
       setLastName("");
       setEmail("");
       setSenha("");
       setConfirmSenha("");
-      onClose();
+
+      // 💡 2. VERIFICA SE O LOGIN FOI BEM-SUCEDIDO E CHAMA O CALLBACK:
+      // Se onLoginSuccess existir (veio da HomePage), ele fecha o modal E redireciona.
+      // Caso contrário (veio do Header), ele apenas fecha o modal.
+      if (onLoginSuccess) {
+        onLoginSuccess();
+      } else {
+        onClose();
+      }
     } catch (err) {
       alert(err.message); // Trata o erro (lançado pelo Contexto)
     }
+    // 💡 REMOVIDO: onClose() está agora dentro do try/catch para ser mais controlável.
   };
 
   return (
