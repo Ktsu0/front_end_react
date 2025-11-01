@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import styles from "./homePage.module.scss";
 import Footer from "../footer/footer";
 import { useState, useEffect } from "react";
+import { useAuth } from "../../hooks/hookLogin";
+import LoginModal from "../loginPage/loginModal";
 
 const YOUTUBE_VIDEO_IDS = [
   "D35RhBgvaKo",
@@ -23,12 +25,33 @@ const YOUTUBE_VIDEO_IDS = [
 
 const HomePage = () => {
   const navigate = useNavigate();
+  const { isLoggedIn } = useAuth();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [targetPath, setTargetPath] = useState(null);
   const [randomVideoId, setRandomVideoId] = useState("");
   const [isMuted, setIsMuted] = useState(true);
 
   const handleNavigation = (path) => {
-    navigate(path);
+    if (isLoggedIn) {
+      navigate(path);
+    } else {
+      setTargetPath(path);
+      setIsModalOpen(true);
+    }
   };
+  const handleLoginSuccess = () => {
+    setIsModalOpen(false);
+    if (targetPath) {
+      navigate(targetPath);
+      setTargetPath(null);
+    }
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setTargetPath(null); // Também limpa o destino caso feche sem logar
+  };
+
   useEffect(() => {
     const randomIndex = Math.floor(Math.random() * YOUTUBE_VIDEO_IDS.length);
     setRandomVideoId(YOUTUBE_VIDEO_IDS[randomIndex]);
@@ -42,6 +65,12 @@ const HomePage = () => {
 
   return (
     <div className={styles.homeContainer}>
+      {isModalOpen && (
+        <LoginModal
+          onClose={handleModalClose}
+          onLoginSuccess={handleLoginSuccess}
+        />
+      )}
       {youtubeEmbedUrl && (
         <iframe
           className={styles.videoBackground}
