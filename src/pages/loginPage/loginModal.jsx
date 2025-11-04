@@ -2,70 +2,81 @@ import { useState } from "react";
 import styles from "./loginModal.module.scss";
 import { useAuth } from "../../hooks/hookLogin";
 
-// 💡 1. Adicione onLoginSuccess como um prop (ele é opcional,
-//    pois o modal também é usado pelo botão de login do header, que só fecha o modal)
 const LoginModal = ({ onClose, onLoginSuccess }) => {
   const [isRegister, setIsRegister] = useState(false);
 
-  // Campos de login/registro (Lógica de estado de UI)
+  // Campos de login
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
 
-  // Campos de registro (Lógica de estado de UI)
+  // Campos extras de registro
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [confirmSenha, setConfirmSenha] = useState("");
+  const [cpf, setCpf] = useState("");
+  const [telefone, setTelefone] = useState("");
+  const [cep, setCep] = useState("");
+  const [genero, setGenero] = useState("");
+  const [nascimento, setNascimento] = useState("");
 
-  const { login, register, loginWithGoogle, loading } = useAuth(); // Obtém as funções do Contexto
+  const { login, register, loginWithGoogle, loading } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (loading) return; // Evita envio duplo
+    if (loading) return;
 
     try {
       if (isRegister) {
-        // Lógica de validação de UI
-        if (!firstName || !lastName) {
-          alert("Preencha nome e sobrenome!");
-          return;
-        }
-        if (!email) {
-          alert("Preencha um email válido!");
-          return;
-        }
-        if (!senha || senha !== confirmSenha) {
-          alert("As senhas não coincidem!");
+        // Validação básica antes de enviar
+        if (
+          !firstName ||
+          !lastName ||
+          !cpf ||
+          !telefone ||
+          !cep ||
+          !genero ||
+          !nascimento
+        ) {
+          alert("Preencha todos os campos obrigatórios!");
           return;
         }
 
-        // Chamada de lógica (Função do Contexto)
-        await register(email, senha, firstName, lastName);
-        // ⚠️ REMOVIDO: alert("Conta criada com sucesso!");
+        if (!email || !senha || senha !== confirmSenha) {
+          alert("Verifique o e-mail e se as senhas coincidem!");
+          return;
+        }
+
+        await register({
+          email,
+          password: senha,
+          firstName,
+          lastName,
+          Cpf: cpf,
+          telefone,
+          cep,
+          genero,
+          nascimento,
+        });
       } else {
-        // Chamada de lógica (Função do Contexto)
         await login(email, senha);
       }
 
-      // Limpar campos
+      // Limpa campos
       setFirstName("");
       setLastName("");
       setEmail("");
       setSenha("");
       setConfirmSenha("");
+      setCpf("");
+      setTelefone("");
+      setCep("");
+      setGenero("");
+      setNascimento("");
 
-      // 💡 2. VERIFICA SE O LOGIN FOI BEM-SUCEDIDO E CHAMA O CALLBACK:
-      // Se onLoginSuccess existir (veio da HomePage), ele fecha o modal E redireciona.
-      // Caso contrário (veio do Header), ele apenas fecha o modal.
-      if (onLoginSuccess) {
-        onLoginSuccess();
-      } else {
-        onClose();
-      }
+      onLoginSuccess ? onLoginSuccess() : onClose();
     } catch (err) {
-      alert(err.message); // Trata o erro (lançado pelo Contexto)
+      alert(err.message);
     }
-    // 💡 REMOVIDO: onClose() está agora dentro do try/catch para ser mais controlável.
   };
 
   return (
@@ -75,7 +86,7 @@ const LoginModal = ({ onClose, onLoginSuccess }) => {
           ✕
         </button>
 
-        <h2>{isRegister ? "Registrar-se" : "Entrar"}</h2>
+        <h2>{isRegister ? "Criar conta" : "Entrar"}</h2>
 
         <form onSubmit={handleSubmit}>
           {isRegister && (
@@ -96,6 +107,66 @@ const LoginModal = ({ onClose, onLoginSuccess }) => {
                     type="text"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
+                    required
+                  />
+                </label>
+              </div>
+
+              <label>
+                CPF:
+                <input
+                  type="text"
+                  value={cpf}
+                  onChange={(e) => setCpf(e.target.value)}
+                  placeholder="000.000.000-00"
+                  required
+                />
+              </label>
+
+              <label>
+                Telefone:
+                <input
+                  type="tel"
+                  value={telefone}
+                  onChange={(e) => setTelefone(e.target.value)}
+                  placeholder="(00) 00000-0000"
+                  required
+                />
+              </label>
+
+              <label>
+                CEP:
+                <input
+                  type="text"
+                  value={cep}
+                  onChange={(e) => setCep(e.target.value)}
+                  placeholder="00000-000"
+                  required
+                />
+              </label>
+
+              <div className={styles.genderBirth}>
+                <label>
+                  Gênero:
+                  <select
+                    value={genero}
+                    onChange={(e) => setGenero(e.target.value)}
+                    required
+                  >
+                    <option value="">Selecione...</option>
+                    <option value="Masculino">Masculino</option>
+                    <option value="Feminino">Feminino</option>
+                    <option value="Outro">Outro</option>
+                    <option value="Prefiro não dizer">Prefiro não dizer</option>
+                  </select>
+                </label>
+
+                <label>
+                  Nascimento:
+                  <input
+                    type="date"
+                    value={nascimento}
+                    onChange={(e) => setNascimento(e.target.value)}
                     required
                   />
                 </label>
@@ -125,7 +196,7 @@ const LoginModal = ({ onClose, onLoginSuccess }) => {
 
           {isRegister && (
             <label>
-              Repetir Senha:
+              Confirmar Senha:
               <input
                 type="password"
                 value={confirmSenha}
@@ -173,7 +244,6 @@ const LoginModal = ({ onClose, onLoginSuccess }) => {
                 <span
                   className={styles.toggleLink}
                   onClick={() => setIsRegister(true)}
-                  tabIndex="0"
                 >
                   Registrar-se
                 </span>

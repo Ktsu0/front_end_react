@@ -1,11 +1,11 @@
 // App.js
 import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
-import Header from "./pages/header/header";
 import HomePage from "./pages/home/homePage";
 import CardsPage from "./pages/series/cardsPage";
 import AnimePage from "./pages/animes/animesPage";
 import styles from "./App.module.scss";
 import { CarrinhoProvider } from "./service/context/useCarrinho";
+import PrivateRoute from "./service/context/privateRote";
 
 const Layout = () => {
   return (
@@ -25,8 +25,10 @@ function App() {
           <Routes>
             <Route path="/" element={<Layout />}>
               <Route index element={<HomePage />} />
-              <Route path="series" element={<CardsPage />} />
-              <Route path="anime" element={<AnimePage />} />
+              <Route element={<PrivateRoute />}>
+                <Route path="series" element={<CardsPage />} />
+                <Route path="anime" element={<AnimePage />} />
+              </Route>
               <Route path="*" element={<h1>404 | Página Não Encontrada</h1>} />
             </Route>
           </Routes>

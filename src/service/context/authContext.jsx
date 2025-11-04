@@ -4,15 +4,14 @@ const API_BASE_URL = "http://localhost:5000";
 async function handleAuthResponse(res) {
   const data = await res.json();
   if (!res.ok) {
-    // Lança um erro com a mensagem da API para ser capturado no Contexto/Hook
     throw new Error(
       data.message || "Erro de conexão ou credenciais inválidas."
     );
   }
-  return data; // Retorna os dados do usuário/token
+  return data;
 }
 
-// POST - Login de Usuário
+// POST - Login de Usuário (Permanece inalterada)
 export async function loginApi(email, senha) {
   const res = await fetch(`${API_BASE_URL}/users/login`, {
     method: "POST",
@@ -22,12 +21,38 @@ export async function loginApi(email, senha) {
   return handleAuthResponse(res);
 }
 
-// POST - Registro de Usuário
-export async function registerApi(email, senha, firstName, lastName) {
+// POST - Registro de Usuário (MODIFICADA)
+export async function registerApi(userData) {
+  const {
+    email,
+    senha,
+    firstName,
+    lastName,
+    Cpf,
+    telefone,
+    cep,
+    genero,
+    nascimento,
+  } = userData;
+
+  // Log de diagnóstico
+  console.log("Payload FINAL para API:", userData);
+
   const res = await fetch(`${API_BASE_URL}/users`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password: senha, firstName, lastName }),
+    body: JSON.stringify({
+      email,
+      password: senha,
+      firstName,
+      lastName,
+      Cpf,
+      telefone,
+      cep,
+      genero,
+      nascimento,
+    }),
   });
+  // ... (Tratamento de resposta)
   return handleAuthResponse(res);
 }

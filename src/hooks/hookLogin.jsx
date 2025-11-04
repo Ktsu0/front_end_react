@@ -1,12 +1,9 @@
-// service/context/authContext.js (Versão Refatorada)
-
 import { createContext, useState, useContext } from "react";
 import { loginApi, registerApi } from "./../service/context/authContext";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  // Inicializa o estado do usuário, tentando carregar do localStorage na primeira renderização
   const [user, setUser] = useState(() => {
     try {
       const storedUser = localStorage.getItem("user");
@@ -21,28 +18,20 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, senha) => {
     setLoading(true);
     try {
-      // Chama a função da API pura (Service)
       const data = await loginApi(email, senha);
-
-      // Atualiza o estado e o localStorage (Lógica do Contexto/Hook)
       setUser(data);
       localStorage.setItem("user", JSON.stringify(data));
       return data;
     } catch (error) {
-      // Re-lança o erro para o componente de UI tratar (ex: LoginModal)
       throw error;
     } finally {
       setLoading(false);
     }
   };
-
-  const register = async (email, senha, firstName, lastName) => {
+  const register = async (userData) => {
     setLoading(true);
     try {
-      // Chama a função da API pura (Service)
-      const data = await registerApi(email, senha, firstName, lastName);
-
-      // Atualiza o estado e o localStorage
+      const data = await registerApi(userData);
       setUser(data);
       localStorage.setItem("user", JSON.stringify(data));
       return data;
