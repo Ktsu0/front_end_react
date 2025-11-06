@@ -15,10 +15,10 @@ export const AuthProvider = ({ children }) => {
   });
   const [loading, setLoading] = useState(false);
 
-  const login = async (email, senha) => {
+  const login = async (email, password) => {
     setLoading(true);
     try {
-      const data = await loginApi(email, senha);
+      const data = await loginApi(email, password);
       setUser(data);
       localStorage.setItem("user", JSON.stringify(data));
       return data;

@@ -12,11 +12,10 @@ const CartModal = ({ onClose }) => {
     atualizarQuantidade,
   } = useCarrinho();
 
-  // Guardamos a seleção como `${tipo}:${produtoId}` para evitar conflitos
   const [itensSelecionados, setItensSelecionados] = useState([]);
 
   const handleToggleSelect = useCallback((item) => {
-    const key = `${item.tipo}:${item.produtoId}`;
+    const key = item.produtoId;
     setItensSelecionados((prev) =>
       prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
     );
@@ -33,9 +32,8 @@ const CartModal = ({ onClose }) => {
         `Tem certeza que deseja remover ${itensSelecionados.length} itens do carrinho?`
       )
     ) {
-      itensSelecionados.forEach((key) => {
-        const [tipo, produtoId] = key.split(":");
-        removerDoCarrinho(produtoId, tipo);
+      itensSelecionados.forEach((produtoId) => {
+        removerDoCarrinho(produtoId);
       });
       setItensSelecionados([]);
     }
@@ -72,7 +70,7 @@ const CartModal = ({ onClose }) => {
 
             <div className={styles.itemList}>
               {validacao.items.map((item) => {
-                const key = `${item.tipo}:${item.produtoId}`;
+                const key = item.produtoId;
                 return (
                   <div key={key} className={styles.itemRow}>
                     <input
@@ -95,7 +93,6 @@ const CartModal = ({ onClose }) => {
                         onChange={(e) =>
                           atualizarQuantidade(
                             item.produtoId,
-                            item.tipo,
                             Number(e.target.value)
                           )
                         }
@@ -115,9 +112,7 @@ const CartModal = ({ onClose }) => {
 
                     <button
                       className={styles.deleteItemButton}
-                      onClick={() =>
-                        removerDoCarrinho(item.produtoId, item.tipo)
-                      }
+                      onClick={() => removerDoCarrinho(item.produtoId)}
                     >
                       🗑️
                     </button>

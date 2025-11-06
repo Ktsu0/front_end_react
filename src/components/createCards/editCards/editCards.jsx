@@ -7,24 +7,23 @@ const EditCardModal = ({ cardToEdit, onEdit, onClose }) => {
     titulo: "",
     descricao: { temporada: "", tema: "" },
     detalhes: "",
-    imagem: "",
-    // 🚀 NOVOS CAMPOS INICIAIS
+    imagem: "", // 🚀 NOVOS CAMPOS INICIAIS
     estoque: 0,
     valorUnitario: 0.0,
+    tipo: "serie", // 💡 NOVO: Inicializa o tipo
   });
 
   useEffect(() => {
     if (cardToEdit) {
       setForm({
-        ...cardToEdit,
-        // Garante que a descrição seja um objeto, tratando o valor antigo como temporada se for string
+        ...cardToEdit, // Garante que a descrição seja um objeto
         descricao:
           typeof cardToEdit.descricao === "object"
             ? cardToEdit.descricao
-            : { temporada: cardToEdit.descricao || "", tema: "" },
-        // 🚀 GARANTE QUE OS VALORES NUMÉRICOS SEJAM TRANSFERIDOS
+            : { temporada: cardToEdit.descricao || "", tema: "" }, // GARANTE QUE OS VALORES NUMÉRICOS E O TIPO SEJAM TRANSFERIDOS
         estoque: cardToEdit.estoque || 0,
         valorUnitario: cardToEdit.valorUnitario || 0.0,
+        tipo: cardToEdit.tipo || "serie", // 💡 NOVO: Carrega o tipo do card
       });
     }
   }, [cardToEdit]);
@@ -32,14 +31,25 @@ const EditCardModal = ({ cardToEdit, onEdit, onClose }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // A lógica de `handleChange` não precisa ser alterada, pois os novos campos estarão desabilitados
-    // e não dispararão o evento de mudança (onChange).
+    // 💡 ATENÇÃO: A lógica de edição deve permitir a alteração de ESTOQUE e VALOR se for necessário.
+    // Se o objetivo é apenas editar TÍTULO, DETALHES, IMAGEM e DESCRIÇÃO, mantenha o estoque/valor
+    // desabilitados, mas inclua-os no payload final (como você já fez).
+
+    let newValue = value;
+
+    // Se você quiser permitir a edição de estoque e valor no modal, descomente e ajuste esta lógica:
+    // if (name === "estoque") {
+    //   newValue = parseInt(value) || 0;
+    // } else if (name === "valorUnitario") {
+    //   newValue = parseFloat(value.replace(",", ".")) || 0.0;
+    // }
+
     if (name !== "temporada" && name !== "tema") {
-      setForm({ ...form, [name]: value });
+      setForm({ ...form, [name]: newValue });
     } else {
       setForm({
         ...form,
-        descricao: { ...form.descricao, [name]: value },
+        descricao: { ...form.descricao, [name]: newValue },
       });
     }
   };
@@ -47,29 +57,40 @@ const EditCardModal = ({ cardToEdit, onEdit, onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 🚀 ATENÇÃO: É CRÍTICO GARANTIR QUE ESTOQUE E VALOR SEJAM INCLUÍDOS NO PAYLOAD!
-    // Como eles não são alterados, eles vêm diretamente do estado 'form'.
     const payload = {
       ...form,
-      descricao: { ...form.descricao },
-      // Garante que o valorUnitario seja um float
+      descricao: { ...form.descricao }, // Garante que os números sejam enviados no formato correto
       valorUnitario: parseFloat(form.valorUnitario),
-      // Garante que o estoque seja um inteiro
       estoque: parseInt(form.estoque),
+      // 💡 O 'tipo' já está embutido no '...form'
     };
 
-    await onEdit(form.id, payload);
+    await onEdit(form.id, payload); // onEdit precisa de ID e payload completo, incluindo o tipo
     onClose();
   };
 
   if (!cardToEdit) return null;
 
+  // Exibição formatada do tipo (ex: 'serie' -> 'Série')
+  const displayTipo = form.tipo
+    ? form.tipo.charAt(0).toUpperCase() + form.tipo.slice(1)
+    : "Não definido";
+
   return (
     <div className={styles.addCardModal}>
+      {" "}
       <div className={styles.modalContent}>
-        <h2>Editar Card: {form.titulo || "Sem título"}</h2>
+        <h2>Editar Card: {form.titulo || "Sem título"}</h2>{" "}
         <form onSubmit={handleSubmit}>
-          <label>Título</label>
+          {/* 💡 NOVO CAMPO: EXIBIÇÃO DO TIPO (DESABILITADO) */}
+          <label>Tipo de Mídia</label>
+          <input
+            type="text"
+            name="tipo"
+            value={displayTipo}
+            disabled // O tipo não deve ser alterado
+          />
+          <label>Título</label>{" "}
           <input
             type="text"
             name="titulo"
@@ -77,80 +98,77 @@ const EditCardModal = ({ cardToEdit, onEdit, onClose }) => {
             onChange={handleChange}
             required
           />
-
-          {/* Temporada e Tema lado a lado */}
+          {/* Temporada e Tema lado a lado */}{" "}
           <div className={styles.row}>
+            {" "}
             <div>
-              <label>Temporada</label>
+              <label>Temporada</label>{" "}
               <input
                 type="text"
                 name="temporada"
                 value={form.descricao.temporada}
                 onChange={handleChange}
                 required
-              />
-            </div>
+              />{" "}
+            </div>{" "}
             <div>
-              <label>Tema</label>
+              <label>Tema</label>{" "}
               <input
                 type="text"
                 name="tema"
                 value={form.descricao.tema}
                 onChange={handleChange}
                 required
-              />
-            </div>
+              />{" "}
+            </div>{" "}
           </div>
-
-          {/* 🚀 NOVOS CAMPOS DESABILITADOS (Valor e Estoque) */}
+          {/* CAMPOS DESABILITADOS (Valor e Estoque) */}{" "}
           <div className={styles.row}>
+            {" "}
             <div>
-              <label>Valor Unitário (R$)</label>
+              <label>Valor Unitário (R$)</label>{" "}
               <input
-                type="text" // Usamos text para formatar, mas é desabilitado
+                type="text"
                 name="valorUnitario"
                 value={
                   form.valorUnitario ? form.valorUnitario.toFixed(2) : "0.00"
                 }
-                disabled // 👈 CRÍTICO: Desabilita a edição
-              />
-            </div>
+                disabled
+              />{" "}
+            </div>{" "}
             <div>
-              <label>Estoque Disponível</label>
+              <label>Estoque Disponível</label>{" "}
               <input
                 type="number"
                 name="estoque"
                 value={form.estoque}
-                disabled // 👈 CRÍTICO: Desabilita a edição
-              />
-            </div>
+                disabled
+              />{" "}
+            </div>{" "}
           </div>
-
-          <label>Detalhes</label>
+          <label>Detalhes</label>{" "}
           <textarea
             name="detalhes"
             value={form.detalhes}
             onChange={handleChange}
             required
           />
-
-          <label>Imagem (URL)</label>
+          <label>Imagem (URL)</label>{" "}
           <input
             type="text"
             name="imagem"
             value={form.imagem}
             onChange={handleChange}
             required
-          />
-
+          />{" "}
           <div className={styles.modalButtons}>
-            <button type="submit">Salvar</button>
+            <button type="submit">Salvar</button>{" "}
             <button type="button" onClick={onClose}>
-              Cancelar
-            </button>
-          </div>
-        </form>
-      </div>
+              Cancelar{" "}
+            </button>{" "}
+          </div>{" "}
+        </form>{" "}
+      </div>{" "}
     </div>
   );
 };

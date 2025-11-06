@@ -2,9 +2,8 @@ import { useState } from "react";
 import styles from "./addCards.module.scss";
 
 const AddCard = ({ onAdd }) => {
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(false); // 🚀 ATUALIZAÇÃO 1: Adicionar 'tipo' ao estado inicial
 
-  // 🚀 ATUALIZAÇÃO 1: Adicionar estoque e valorUnitario ao estado inicial
   const [form, setForm] = useState({
     titulo: "",
     descricao: {
@@ -13,20 +12,18 @@ const AddCard = ({ onAdd }) => {
     },
     detalhes: "",
     imagem: "",
-    estoque: 0, // Novo campo
-    valorUnitario: 0.0, // Novo campo
+    estoque: 0,
+    valorUnitario: 0.0,
+    tipo: "serie", // 💡 NOVO CAMPO: Padrão é 'serie'
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    let newValue = value;
+    let newValue = value; // Tratar valores numéricos
 
-    // 🚀 ATUALIZAÇÃO 2a: Tratar valores numéricos
     if (name === "estoque") {
-      // Garante que estoque seja um número inteiro
       newValue = parseInt(value) || 0;
     } else if (name === "valorUnitario") {
-      // Garante que o valorUnitario seja um float (aceitando vírgula/ponto)
       newValue = parseFloat(value.replace(",", ".")) || 0.0;
     }
 
@@ -39,7 +36,7 @@ const AddCard = ({ onAdd }) => {
         },
       }));
     } else {
-      // 🚀 ATUALIZAÇÃO 2b: Usar newValue para os campos de estoque/valor
+      // 🚀 ATUALIZAÇÃO 2: Atualizar 'tipo', 'estoque', 'valorUnitario', 'titulo', etc.
       setForm({ ...form, [name]: newValue });
     }
   };
@@ -48,14 +45,12 @@ const AddCard = ({ onAdd }) => {
     e.preventDefault();
     const payload = {
       ...form,
-      // Garante que os números sejam enviados como tipo number, não string.
       estoque: parseInt(form.estoque),
       valorUnitario: parseFloat(form.valorUnitario),
-    };
+    }; // 💡 Agora, onAdd deve saber qual rota usar (series ou animes)
 
-    onAdd(payload); // Enviamos o formulário completo (sem o ID gerado aqui, confiando no backend)
+    onAdd(payload); // Limpa o formulário
 
-    // limpa o formulário (resetando os novos campos também)
     setForm({
       titulo: "",
       descricao: { temporada: "", tema: "" },
@@ -63,24 +58,37 @@ const AddCard = ({ onAdd }) => {
       imagem: "",
       estoque: 0,
       valorUnitario: 0.0,
+      tipo: "serie", // Reseta para o padrão
     });
     setShowModal(false);
   };
 
   return (
     <>
+      {" "}
       <div className={styles.addCardWrapper} onClick={() => setShowModal(true)}>
+        {" "}
         <div className={styles.addCard}>
-          <span className={styles.plus}>+</span>
-        </div>
-      </div>
-
+          <span className={styles.plus}>+</span>{" "}
+        </div>{" "}
+      </div>{" "}
       {showModal && (
         <div className={styles.addCardModal}>
+          {" "}
           <div className={styles.modalContent}>
-            <h2>Adicionar Nova Série</h2>
+            <h2>Adicionar Novo Item</h2>{" "}
             <form onSubmit={handleSubmit}>
-              <label>Título</label>
+              {/* 🚀 NOVO CAMPO DE SELEÇÃO */} <label>Tipo de Mídia</label>{" "}
+              <select
+                name="tipo"
+                value={form.tipo}
+                onChange={handleChange}
+                required
+              >
+                <option value="serie">Série</option>
+                <option value="anime">Anime</option>{" "}
+              </select>
+              <label>Título</label>{" "}
               <input
                 type="text"
                 name="titulo"
@@ -88,46 +96,46 @@ const AddCard = ({ onAdd }) => {
                 onChange={handleChange}
                 required
               />
-
-              {/* Temporada e Tema lado a lado */}
+              {/* Temporada e Tema lado a lado */}{" "}
               <div className={styles.row}>
+                {" "}
                 <div>
-                  <label>Temporada</label>
+                  <label>Temporada</label>{" "}
                   <input
                     type="text"
                     name="temporada"
                     value={form.descricao.temporada}
                     onChange={handleChange}
                     required
-                  />
-                </div>
+                  />{" "}
+                </div>{" "}
                 <div>
-                  <label>Tema</label>
+                  <label>Tema</label>{" "}
                   <input
                     type="text"
                     name="tema"
                     value={form.descricao.tema}
                     onChange={handleChange}
                     required
-                  />
-                </div>
+                  />{" "}
+                </div>{" "}
               </div>
-
-              {/* 🚀 ATUALIZAÇÃO 3: Valor Unitário e Estoque lado a lado */}
+              {/* Valor Unitário e Estoque lado a lado */}{" "}
               <div className={styles.row}>
+                {" "}
                 <div>
-                  <label>Valor Unitário (R$)</label>
+                  <label>Valor Unitário (R$)</label>{" "}
                   <input
                     type="number"
-                    step="0.01" // Permite decimais
+                    step="0.01"
                     name="valorUnitario"
                     value={form.valorUnitario}
                     onChange={handleChange}
                     required
-                  />
-                </div>
+                  />{" "}
+                </div>{" "}
                 <div>
-                  <label>Estoque Inicial</label>
+                  <label>Estoque Inicial</label>{" "}
                   <input
                     type="number"
                     name="estoque"
@@ -135,44 +143,41 @@ const AddCard = ({ onAdd }) => {
                     value={form.estoque}
                     onChange={handleChange}
                     required
-                  />
-                </div>
+                  />{" "}
+                </div>{" "}
               </div>
-              {/* Fim dos novos campos */}
-
-              <label>Detalhes</label>
+              {/* Fim dos novos campos */} <label>Detalhes</label>{" "}
               <textarea
                 name="detalhes"
                 value={form.detalhes}
                 onChange={handleChange}
                 required
               />
-
-              <label>Imagem (URL)</label>
+              <label>Imagem (URL)</label>{" "}
               <input
                 type="text"
                 name="imagem"
                 value={form.imagem}
                 onChange={handleChange}
                 required
-              />
-
+              />{" "}
               <div className={styles.modalButtons}>
+                {" "}
                 <button type="submit" className={styles.addBtn}>
-                  Adicionar
-                </button>
+                  Adicionar{" "}
+                </button>{" "}
                 <button
                   type="button"
                   className={styles.cancelBtn}
                   onClick={() => setShowModal(false)}
                 >
-                  Cancelar
-                </button>
-              </div>
-            </form>
-          </div>
+                  Cancelar{" "}
+                </button>{" "}
+              </div>{" "}
+            </form>{" "}
+          </div>{" "}
         </div>
-      )}
+      )}{" "}
     </>
   );
 };

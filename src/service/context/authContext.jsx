@@ -12,11 +12,11 @@ async function handleAuthResponse(res) {
 }
 
 // POST - Login de Usuário (Permanece inalterada)
-export async function loginApi(email, senha) {
+export async function loginApi(email, password) {
   const res = await fetch(`${API_BASE_URL}/users/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password: senha }),
+    body: JSON.stringify({ email, password: password }),
   });
   return handleAuthResponse(res);
 }
@@ -25,7 +25,7 @@ export async function loginApi(email, senha) {
 export async function registerApi(userData) {
   const {
     email,
-    senha,
+    password,
     firstName,
     lastName,
     Cpf,
@@ -43,7 +43,7 @@ export async function registerApi(userData) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       email,
-      password: senha,
+      password,
       firstName,
       lastName,
       Cpf,

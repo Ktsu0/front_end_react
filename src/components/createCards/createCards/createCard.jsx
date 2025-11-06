@@ -8,6 +8,7 @@ const CreateCard = ({
   imagem,
   estoque,
   valorUnitario,
+  tipo, // 💡 NOVO PROP: Recebe 'anime' ou 'serie'
   onAddToCart,
 
   onEdit,
@@ -21,12 +22,18 @@ const CreateCard = ({
     imagem,
     estoque,
     valorUnitario,
+    tipo, // 💡 INCLUSÃO: Passando o tipo para o CarrinhoProvider
   };
 
   const handleAddToCart = () => {
     onAddToCart(cardData, 1);
   };
   const isAvailable = estoque > 0;
+
+  // Formata o tipo para exibição (ex: "anime" -> "Anime")
+  const displayTipo = tipo
+    ? tipo.charAt(0).toUpperCase() + tipo.slice(1)
+    : "Não definido";
 
   return (
     <div className={styles.cardWrapper}>
@@ -36,6 +43,7 @@ const CreateCard = ({
           <div>
             <h3>{titulo}</h3>
 
+            {/* Renderização condicional para descrição/detalhes (inalterada) */}
             {descricao && typeof descricao === "object" ? (
               <div
                 className={styles.row}
@@ -53,6 +61,9 @@ const CreateCard = ({
             ) : (
               <p>{descricao}</p>
             )}
+
+            {/* 💡 INFORMAÇÃO DO TIPO: Adicionado para clareza (Opcional, mas útil) */}
+            <p className={styles.cardType}>**Tipo:** {displayTipo}</p>
 
             <div className={styles.commerceInfo}>
               <p className={styles.price}>

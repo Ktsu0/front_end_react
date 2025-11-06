@@ -7,7 +7,7 @@ const LoginModal = ({ onClose, onLoginSuccess }) => {
 
   // Campos de login
   const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
+  const [password, setSenha] = useState("");
 
   // Campos extras de registro
   const [firstName, setFirstName] = useState("");
@@ -41,14 +41,14 @@ const LoginModal = ({ onClose, onLoginSuccess }) => {
           return;
         }
 
-        if (!email || !senha || senha !== confirmSenha) {
+        if (!email || !password || password !== confirmSenha) {
           alert("Verifique o e-mail e se as senhas coincidem!");
           return;
         }
 
         await register({
           email,
-          password: senha,
+          password,
           firstName,
           lastName,
           Cpf: cpf,
@@ -58,7 +58,7 @@ const LoginModal = ({ onClose, onLoginSuccess }) => {
           nascimento,
         });
       } else {
-        await login(email, senha);
+        await login(email, password);
       }
 
       // Limpa campos
@@ -188,7 +188,7 @@ const LoginModal = ({ onClose, onLoginSuccess }) => {
             Senha:
             <input
               type="password"
-              value={senha}
+              value={password}
               onChange={(e) => setSenha(e.target.value)}
               required
             />

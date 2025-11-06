@@ -4,117 +4,24 @@ import {
   useContext,
   useMemo,
   useCallback,
-  useEffect,
 } from "react";
 
-// 💡 Base URL ajustada conforme sua requisição (porta 5000)
 const BASE_URL = "http://localhost:5000";
-
 const CarrinhoContext = createContext();
 
 export const CarrinhoProvider = ({ children, fetchCards }) => {
+  // 1. ESTADOS
   const [carrinho, setCarrinho] = useState([]);
   const [modalAberto, setModalAberto] = useState(false);
   const [validacao, setValidacao] = useState(null);
-  const [loadingValidacao, setLoadingValidacao] = useState(false);
+  const [loadingValidacao, setLoadingValidacao] = useState(false); // ----------------------------------------------------------- // 2. Comunicação com API (validarCarrinhoAPI) // ----------------------------------------------------------- // 💡 Esta função não usa estados do componente em seu corpo
 
-  // -----------------------------------------------------------
-  // Funções de Manipulação Local
-  // -----------------------------------------------------------
-
-  const adicionarAoCarrinho = useCallback((cardData, quantidade = 1) => {
-    setCarrinho((prevCarrinho) => {
-      // Verifica se já existe um item com mesmo id e tipo
-      const itemExistente = prevCarrinho.find(
-        (item) => item.produtoId === cardData.id && item.tipo === cardData.tipo
-      );
-
-      if (itemExistente) {
-        const novaQuantidade = itemExistente.quantidadeDesejada + quantidade;
-
-        if (novaQuantidade > cardData.estoque) {
-          alert(
-            `Não é possível adicionar mais. Limite de estoque é ${cardData.estoque} unidades.`
-          );
-          return prevCarrinho;
-        }
-
-        return prevCarrinho.map((item) =>
-          item.produtoId === cardData.id && item.tipo === cardData.tipo
-            ? { ...item, quantidadeDesejada: novaQuantidade }
-            : item
-        );
-      } else {
-        if (quantidade > cardData.estoque) {
-          alert(
-            `Não é possível adicionar. Limite de estoque é ${cardData.estoque} unidades.`
-          );
-          return prevCarrinho;
-        }
-        return [
-          ...prevCarrinho,
-          {
-            produtoId: cardData.id,
-            titulo: cardData.titulo,
-            valorUnitario: cardData.valorUnitario,
-            quantidadeDesejada: quantidade,
-            estoqueDisponivel: cardData.estoque,
-            tipo: cardData.tipo,
-          },
-        ];
-      }
-    });
-  }, []);
-
-  const removerDoCarrinho = useCallback((produtoId, tipo) => {
-    setCarrinho((prevCarrinho) =>
-      prevCarrinho.filter(
-        (item) => !(item.produtoId === produtoId && item.tipo === tipo)
-      )
-    );
-  }, []);
-
-  const atualizarQuantidade = useCallback(
-    (produtoId, tipo, novaQuantidade) => {
-      if (novaQuantidade <= 0) {
-        removerDoCarrinho(produtoId, tipo);
-        return;
-      }
-
-      setCarrinho((prevCarrinho) =>
-        prevCarrinho.map((item) => {
-          if (item.produtoId === produtoId && item.tipo === tipo) {
-            const estoqueMaximo = item.estoqueDisponivel;
-            return {
-              ...item,
-              quantidadeDesejada: Math.min(novaQuantidade, estoqueMaximo),
-            };
-          }
-          return item;
-        })
-      );
-    },
-    [removerDoCarrinho]
-  );
-
-  const limparCarrinho = useCallback(() => {
-    setCarrinho([]);
-    setValidacao(null);
-  }, []);
-
-  // -----------------------------------------------------------
-  // Comunicação com API
-  // -----------------------------------------------------------
-
-  const validarCarrinhoAPI = useCallback(async () => {
-    const itensParaAPI = carrinho.map((item) => ({
+  const validarCarrinhoAPI = useCallback(async (itensParaValidar) => {
+    const itensParaAPI = itensParaValidar.map((item) => ({
       id: item.produtoId,
       quantidade: item.quantidadeDesejada,
       tipo: item.tipo,
     }));
-
-    // 🔹 Log do que será enviado
-    console.log("Itens enviados para validação:", itensParaAPI);
 
     if (itensParaAPI.length === 0) {
       setValidacao(null);
@@ -132,9 +39,6 @@ export const CarrinhoProvider = ({ children, fetchCards }) => {
 
       const data = await res.json();
 
-      // 🔹 Log do que vem do backend
-      console.log("Resposta do backend:", data);
-
       if (!res.ok)
         throw new Error(data.message || "Erro ao validar o carrinho.");
 
@@ -145,7 +49,103 @@ export const CarrinhoProvider = ({ children, fetchCards }) => {
     } finally {
       setLoadingValidacao(false);
     }
-  }, [carrinho]);
+  }, []); // ----------------------------------------------------------- // 3. Funções de Manipulação Local // ----------------------------------------------------------- // 💡 Mover esta função para cá resolve o erro de referência na finalizarCompraAPI
+
+  const limparCarrinho = useCallback(() => {
+    setCarrinho([]);
+    setValidacao(null);
+    validarCarrinhoAPI([]);
+  }, [validarCarrinhoAPI]);
+
+  const removerDoCarrinho = useCallback(
+    (produtoId) => {
+      setCarrinho((prevCarrinho) => {
+        const novaLista = prevCarrinho.filter(
+          (item) => item.produtoId !== produtoId
+        );
+        validarCarrinhoAPI(novaLista);
+        return novaLista;
+      });
+    },
+    [validarCarrinhoAPI]
+  );
+
+  const atualizarQuantidade = useCallback(
+    (produtoId, novaQuantidade) => {
+      if (novaQuantidade <= 0) {
+        removerDoCarrinho(produtoId);
+        return;
+      }
+
+      setCarrinho((prevCarrinho) => {
+        const novaLista = prevCarrinho.map((item) => {
+          if (item.produtoId === produtoId) {
+            const estoqueMaximo = item.estoqueDisponivel;
+            return {
+              ...item,
+              quantidadeDesejada: Math.min(novaQuantidade, estoqueMaximo),
+            };
+          }
+          return item;
+        });
+        validarCarrinhoAPI(novaLista);
+        return novaLista;
+      });
+    },
+    [removerDoCarrinho, validarCarrinhoAPI]
+  );
+  const adicionarAoCarrinho = useCallback(
+    (cardData, quantidade = 1) => {
+      setCarrinho((prevCarrinho) => {
+        let novaLista;
+
+        const itemExistente = prevCarrinho.find(
+          (item) => item.produtoId === cardData.id
+        );
+
+        if (itemExistente) {
+          // Lógica de atualização
+          const novaQuantidade = itemExistente.quantidadeDesejada + quantidade;
+
+          if (novaQuantidade > cardData.estoque) {
+            alert(
+              `Não é possível adicionar mais. Limite de estoque é ${cardData.estoque} unidades.`
+            );
+            return prevCarrinho;
+          }
+
+          novaLista = prevCarrinho.map((item) =>
+            item.produtoId === cardData.id
+              ? { ...item, quantidadeDesejada: novaQuantidade }
+              : item
+          );
+        } else {
+          // Lógica de adição
+          if (quantidade > cardData.estoque) {
+            alert(
+              `Não é possível adicionar. Limite de estoque é ${cardData.estoque} unidades.`
+            );
+            return prevCarrinho;
+          }
+          novaLista = [
+            ...prevCarrinho,
+            {
+              produtoId: cardData.id,
+              titulo: cardData.titulo,
+              valorUnitario: cardData.valorUnitario,
+              quantidadeDesejada: quantidade,
+              estoqueDisponivel: cardData.estoque,
+              tipo: cardData.tipo,
+            },
+          ];
+        }
+
+        validarCarrinhoAPI(novaLista);
+        return novaLista;
+      });
+    },
+    [validarCarrinhoAPI]
+  ); // ----------------------------------------------------------- // 4. Comunicação com API (finalizarCompraAPI - AGORA USA limparCarrinho DEFINIDA) // -----------------------------------------------------------
 
   const finalizarCompraAPI = useCallback(async () => {
     if (
@@ -186,7 +186,7 @@ export const CarrinhoProvider = ({ children, fetchCards }) => {
             (data.message ||
               (Array.isArray(data) ? data.join("\n") : "Erro desconhecido"))
         );
-        validarCarrinhoAPI();
+        validarCarrinhoAPI(carrinho); // Chama validação manual
         return;
       }
 
@@ -199,11 +199,7 @@ export const CarrinhoProvider = ({ children, fetchCards }) => {
       alert("Erro ao finalizar a compra.");
       console.error("Erro de API na compra:", error);
     }
-  }, [validacao, carrinho, limparCarrinho, validarCarrinhoAPI, fetchCards]);
-
-  useEffect(() => {
-    validarCarrinhoAPI();
-  }, [validarCarrinhoAPI]);
+  }, [validacao, carrinho, limparCarrinho, validarCarrinhoAPI, fetchCards]); // ----------------------------------------------------------- // 5. UseMemo e Exports // -----------------------------------------------------------
 
   const totalItensCarrinho = useMemo(
     () => carrinho.reduce((total, item) => total + item.quantidadeDesejada, 0),
@@ -224,7 +220,7 @@ export const CarrinhoProvider = ({ children, fetchCards }) => {
       atualizarQuantidade,
       limparCarrinho,
       finalizarCompraAPI,
-      validarCarrinhoAPI,
+      validarCarrinhoAPI: () => validarCarrinhoAPI(carrinho), // Expõe uma função que usa o estado atual
     }),
     [
       carrinho,
@@ -243,7 +239,7 @@ export const CarrinhoProvider = ({ children, fetchCards }) => {
 
   return (
     <CarrinhoContext.Provider value={value}>
-      {children}
+      {children}{" "}
     </CarrinhoContext.Provider>
   );
 };
