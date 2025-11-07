@@ -1,24 +1,17 @@
+// components/LoginModal.js (O componente View)
+
 import { useState } from "react";
 import styles from "./loginModal.module.scss";
-import { useAuth } from "../../hooks/hookLogin";
+import { useAuth } from "./../../hooks/hookLogin";
+import { useLoginForm } from "./../../hooks/hookLoginForm"; // Certifique-se de que o caminho está correto
 
 const LoginModal = ({ onClose, onLoginSuccess }) => {
   const [isRegister, setIsRegister] = useState(false);
 
-  // Campos de login
-  const [email, setEmail] = useState("");
-  const [password, setSenha] = useState("");
+  // 1. Usa o hook de formulário para obter todos os estados e setters
+  const form = useLoginForm(isRegister);
 
-  // Campos extras de registro
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [confirmSenha, setConfirmSenha] = useState("");
-  const [cpf, setCpf] = useState("");
-  const [telefone, setTelefone] = useState("");
-  const [cep, setCep] = useState("");
-  const [genero, setGenero] = useState("");
-  const [nascimento, setNascimento] = useState("");
-
+  // 2. Obtém as funções de autenticação do seu hook de Auth
   const { login, register, loginWithGoogle, loading } = useAuth();
 
   const handleSubmit = async (e) => {
@@ -27,54 +20,18 @@ const LoginModal = ({ onClose, onLoginSuccess }) => {
 
     try {
       if (isRegister) {
-        // Validação básica antes de enviar
-        if (
-          !firstName ||
-          !lastName ||
-          !cpf ||
-          !telefone ||
-          !cep ||
-          !genero ||
-          !nascimento
-        ) {
-          alert("Preencha todos os campos obrigatórios!");
-          return;
-        }
-
-        if (!email || !password || password !== confirmSenha) {
-          alert("Verifique o e-mail e se as senhas coincidem!");
-          return;
-        }
-
-        await register({
-          email,
-          password,
-          firstName,
-          lastName,
-          Cpf: cpf,
-          telefone,
-          cep,
-          genero,
-          nascimento,
-        });
+        // Obtém e valida os dados de registro (a validação lança um erro se falhar)
+        const registerData = form.getRegisterData();
+        await register(registerData); // Chama a função do seu hook de Auth
       } else {
-        await login(email, password);
+        await login(form.email, form.password); // Chama a função do seu hook de Auth
       }
 
-      // Limpa campos
-      setFirstName("");
-      setLastName("");
-      setEmail("");
-      setSenha("");
-      setConfirmSenha("");
-      setCpf("");
-      setTelefone("");
-      setCep("");
-      setGenero("");
-      setNascimento("");
-
+      // 3. Limpa os campos e fecha o modal
+      form.clearFields();
       onLoginSuccess ? onLoginSuccess() : onClose();
     } catch (err) {
+      // Captura erros de validação (do useLoginForm) ou erros da API (do useAuth)
       alert(err.message);
     }
   };
@@ -91,13 +48,14 @@ const LoginModal = ({ onClose, onLoginSuccess }) => {
         <form onSubmit={handleSubmit}>
           {isRegister && (
             <>
+              {/* Nome/Sobrenome */}
               <div className={styles.nameFields}>
                 <label>
                   Nome:
                   <input
                     type="text"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
+                    value={form.firstName}
+                    onChange={(e) => form.setFirstName(e.target.value)}
                     required
                   />
                 </label>
@@ -105,52 +63,56 @@ const LoginModal = ({ onClose, onLoginSuccess }) => {
                   Sobrenome:
                   <input
                     type="text"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
+                    value={form.lastName}
+                    onChange={(e) => form.setLastName(e.target.value)}
                     required
                   />
                 </label>
               </div>
 
+              {/* CPF */}
               <label>
                 CPF:
                 <input
                   type="text"
-                  value={cpf}
-                  onChange={(e) => setCpf(e.target.value)}
+                  value={form.cpf}
+                  onChange={(e) => form.setCpf(e.target.value)}
                   placeholder="000.000.000-00"
                   required
                 />
               </label>
 
+              {/* Telefone */}
               <label>
                 Telefone:
                 <input
                   type="tel"
-                  value={telefone}
-                  onChange={(e) => setTelefone(e.target.value)}
+                  value={form.telefone}
+                  onChange={(e) => form.setTelefone(e.target.value)}
                   placeholder="(00) 00000-0000"
                   required
                 />
               </label>
 
+              {/* CEP */}
               <label>
                 CEP:
                 <input
                   type="text"
-                  value={cep}
-                  onChange={(e) => setCep(e.target.value)}
+                  value={form.cep}
+                  onChange={(e) => form.setCep(e.target.value)}
                   placeholder="00000-000"
                   required
                 />
               </label>
 
+              {/* Gênero e Nascimento */}
               <div className={styles.genderBirth}>
                 <label>
                   Gênero:
                   <select
-                    value={genero}
-                    onChange={(e) => setGenero(e.target.value)}
+                    value={form.genero}
+                    onChange={(e) => form.setGenero(e.target.value)}
                     required
                   >
                     <option value="">Selecione...</option>
@@ -160,13 +122,12 @@ const LoginModal = ({ onClose, onLoginSuccess }) => {
                     <option value="Prefiro não dizer">Prefiro não dizer</option>
                   </select>
                 </label>
-
                 <label>
                   Nascimento:
                   <input
                     type="date"
-                    value={nascimento}
-                    onChange={(e) => setNascimento(e.target.value)}
+                    value={form.nascimento}
+                    onChange={(e) => form.setNascimento(e.target.value)}
                     required
                   />
                 </label>
@@ -174,48 +135,54 @@ const LoginModal = ({ onClose, onLoginSuccess }) => {
             </>
           )}
 
+          {/* E-mail */}
           <label>
             E-mail:
             <input
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={form.email}
+              onChange={(e) => form.setEmail(e.target.value)}
               required
             />
           </label>
 
+          {/* Senha */}
           <label>
             Senha:
             <input
               type="password"
-              value={password}
-              onChange={(e) => setSenha(e.target.value)}
+              value={form.password}
+              onChange={(e) => form.setSenha(e.target.value)}
               required
             />
           </label>
 
+          {/* Confirmação de Senha (apenas Registro) */}
           {isRegister && (
             <label>
               Confirmar Senha:
               <input
                 type="password"
-                value={confirmSenha}
-                onChange={(e) => setConfirmSenha(e.target.value)}
+                value={form.confirmSenha}
+                onChange={(e) => form.setConfirmSenha(e.target.value)}
                 required
               />
             </label>
           )}
 
+          {/* Links de Login (apenas Login) */}
           {!isRegister && (
             <div className={styles.links}>
               <a href="#">Esqueceu a senha?</a>
             </div>
           )}
 
+          {/* Botão Principal */}
           <button type="submit" className={styles.loginBtn} disabled={loading}>
             {loading ? "Aguarde..." : isRegister ? "Registrar" : "Entrar"}
           </button>
 
+          {/* Botão Google (apenas Login) */}
           {!isRegister && (
             <button
               type="button"
@@ -227,6 +194,7 @@ const LoginModal = ({ onClose, onLoginSuccess }) => {
             </button>
           )}
 
+          {/* Switch de Modo */}
           <p className={styles.switch}>
             {isRegister ? (
               <>

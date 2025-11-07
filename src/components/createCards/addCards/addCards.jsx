@@ -12,8 +12,8 @@ const AddCard = ({ onAdd }) => {
     },
     detalhes: "",
     imagem: "",
-    estoque: 0,
-    valorUnitario: 0.0,
+    estoque: 0 || "",
+    valorUnitario: 0.0 || "",
     tipo: "serie", // 💡 NOVO CAMPO: Padrão é 'serie'
   });
 

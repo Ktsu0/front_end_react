@@ -10,7 +10,7 @@ import CartButton from "./../../components/cart/cartButton";
 import CartModal from "./../../components/cart/cartModal";
 import Footer from "./../footer/footer";
 import useCards from "../../hooks/hookSeries";
-import { useCarrinho } from "./../../service/context/useCarrinho";
+import { useCarrinho } from "./../../hooks/hookCarrinho";
 
 const CardsPage = () => {
   const { cards, addCard, editCard, deleteCard, fetchCards, loading, error } =

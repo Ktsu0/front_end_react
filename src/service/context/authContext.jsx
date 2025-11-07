@@ -35,9 +35,6 @@ export async function registerApi(userData) {
     nascimento,
   } = userData;
 
-  // Log de diagnóstico
-  console.log("Payload FINAL para API:", userData);
-
   const res = await fetch(`${API_BASE_URL}/users`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

@@ -4,7 +4,7 @@ import HomePage from "./pages/home/homePage";
 import CardsPage from "./pages/series/cardsPage";
 import AnimePage from "./pages/animes/animesPage";
 import styles from "./App.module.scss";
-import { CarrinhoProvider } from "./service/context/useCarrinho";
+import { CarrinhoProvider } from "./hooks/hookCarrinho";
 import PrivateRoute from "./service/context/privateRote";
 
 const Layout = () => {

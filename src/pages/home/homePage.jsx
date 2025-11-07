@@ -1,5 +1,3 @@
-// src/components/homePage/HomePage.jsx
-
 import { useNavigate } from "react-router-dom";
 import styles from "./homePage.module.scss";
 import Footer from "../footer/footer";
@@ -25,14 +23,24 @@ const YOUTUBE_VIDEO_IDS = [
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const { isLoggedIn } = useAuth();
+  const { user, logout } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [targetPath, setTargetPath] = useState(null);
   const [randomVideoId, setRandomVideoId] = useState("");
   const [isMuted, setIsMuted] = useState(true);
+  const [showLogin, setShowLogin] = useState(false);
+
+  const handleAuthButtonClick = () => {
+    if (user) {
+      logout();
+      navigate("/");
+    } else {
+      setShowLogin(true);
+    }
+  };
 
   const handleNavigation = (path) => {
-    if (isLoggedIn) {
+    if (!!user) {
       navigate(path);
     } else {
       setTargetPath(path);
@@ -65,10 +73,14 @@ const HomePage = () => {
 
   return (
     <div className={styles.homeContainer}>
-      {isModalOpen && (
+      <button className={styles.loginBtn} onClick={handleAuthButtonClick}>
+        {user ? "Sair" : "Entrar"}
+      </button>
+
+      {showLogin && (
         <LoginModal
-          onClose={handleModalClose}
-          onLoginSuccess={handleLoginSuccess}
+          onClose={() => setShowLogin(false)}
+          onLoginSuccess={() => setShowLogin(false)}
         />
       )}
       {youtubeEmbedUrl && (

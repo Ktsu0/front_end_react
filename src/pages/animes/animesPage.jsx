@@ -6,7 +6,7 @@ import AddCard from "./../../components/createCards/addCards/addCards";
 import EditCardModal from "./../../components/createCards/editCards/editCards";
 import CreateCard from "./../../components/createCards/createCards/createCard";
 import FilterPanel from "./../../components/filterCard/filter";
-import { useCarrinho } from "./../../service/context/useCarrinho";
+import { useCarrinho } from "./../../hooks/hookCarrinho";
 import CartButton from "./../../components/cart/cartButton";
 import CartModal from "./../../components/cart/cartModal";
 import useAnimes from "./../../hooks/hookAnimes";

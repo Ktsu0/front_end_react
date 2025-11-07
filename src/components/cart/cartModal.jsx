@@ -1,13 +1,13 @@
 import { useState, useCallback } from "react";
 import styles from "./cartModal.module.scss";
-import { useCarrinho } from "./../../service/context/useCarrinho";
+import { useCarrinho } from "./../../hooks/hookCarrinho";
 
 const CartModal = ({ onClose }) => {
   const {
     carrinho,
     validacao,
     loadingValidacao,
-    finalizarCompraAPI,
+    finalizarCompra,
     removerDoCarrinho,
     atualizarQuantidade,
   } = useCarrinho();
@@ -41,8 +41,8 @@ const CartModal = ({ onClose }) => {
 
   const handleComprar = useCallback(async () => {
     if (!validacao || validacao.items.length === 0) return;
-    await finalizarCompraAPI();
-  }, [validacao, finalizarCompraAPI]);
+    await finalizarCompra();
+  }, [validacao, finalizarCompra]);
 
   if (carrinho.length > 0 && loadingValidacao)
     return <div className={styles.loading}>Carregando validação...</div>;
