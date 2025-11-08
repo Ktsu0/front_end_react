@@ -1,11 +1,22 @@
+import {
+  createAuthHeaders,
+  handleResponse,
+} from "./../context/createAuthHeaders";
+
 const API_BASE_URL = "http://localhost:5000/series";
+
+// ----------------------------------------------------
+// GET - Rotas PROTEGIDAS (REQUEREM TOKEN) 🔑
+// ----------------------------------------------------
 
 // GET - buscar todos os cards
 export async function fetchAllCards() {
   try {
-    const res = await fetch(API_BASE_URL);
-    if (!res.ok) throw new Error("Erro ao buscar cards");
-    return await res.json();
+    const res = await fetch(API_BASE_URL, {
+      method: "GET",
+      headers: createAuthHeaders(false), // ⬅️ AGORA PROTEGIDA
+    });
+    return await handleResponse(res);
   } catch (err) {
     console.error("Erro ao carregar cards:", err);
     throw err;
@@ -18,70 +29,79 @@ export async function searchCardsApi(searchTerm) {
     return fetchAllCards();
   }
   try {
-    const res = await fetch(`${API_BASE_URL}/search?q=${searchTerm}`);
-    if (!res.ok) throw new Error("Erro ao buscar cards por termo");
-    return await res.json();
+    const res = await fetch(`${API_BASE_URL}/search?q=${searchTerm}`, {
+      method: "GET",
+      headers: createAuthHeaders(false), // ⬅️ AGORA PROTEGIDA
+    });
+    return await handleResponse(res);
   } catch (err) {
     console.error("Erro ao pesquisar cards:", err);
     throw err;
   }
 }
 
-// POST - adicionar card
+// ----------------------------------------------------
+// POST - adicionar card 🔑 PROTEGIDA (Inalterada)
+// ----------------------------------------------------
 export async function addCardApi(novoCard) {
   try {
     const res = await fetch(API_BASE_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: createAuthHeaders(true),
       body: JSON.stringify(novoCard),
     });
-    if (!res.ok) throw new Error("Erro ao adicionar card");
-    return await res.json();
+    return await handleResponse(res);
   } catch (err) {
     console.error("Erro ao adicionar card:", err);
     throw err;
   }
 }
 
-// PUT - editar card
+// ----------------------------------------------------
+// PUT - editar card 🔑 PROTEGIDA (Inalterada)
+// ----------------------------------------------------
 export async function editCardApi(id, updatedCard) {
   const { id: _, ...dataToUpdate } = updatedCard;
   try {
     const res = await fetch(`${API_BASE_URL}/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: createAuthHeaders(true),
       body: JSON.stringify(dataToUpdate),
     });
-    if (!res.ok) throw new Error("Erro ao editar card");
-    return await res.json();
+    return await handleResponse(res);
   } catch (err) {
     console.error("Erro ao editar card:", err);
     throw err;
   }
 }
 
-// DELETE - remover card
+// ----------------------------------------------------
+// DELETE - remover card 🔑 PROTEGIDA (Inalterada)
+// ----------------------------------------------------
 export async function deleteCardApi(id) {
   try {
     const res = await fetch(`${API_BASE_URL}/${id}`, {
       method: "DELETE",
+      headers: createAuthHeaders(false),
     });
-    if (!res.ok) throw new Error("Erro ao deletar card");
+    return await handleResponse(res);
   } catch (err) {
     console.error("Erro ao deletar card:", err);
     throw err;
   }
 }
 
-// POST - adicionar avaliação
+// ----------------------------------------------------
+// POST - adicionar avaliação 🔑 PROTEGIDA (Inalterada)
+// ----------------------------------------------------
 export async function addAvaliacaoApi(id, avaliacao) {
   try {
     const res = await fetch(`${API_BASE_URL}/${id}/avaliacao`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: createAuthHeaders(true),
       body: JSON.stringify({ avaliacao }),
     });
-    if (!res.ok) throw new Error("Erro ao adicionar avaliação");
+    return await handleResponse(res);
   } catch (err) {
     console.error("Erro ao enviar avaliação:", err);
     throw err;

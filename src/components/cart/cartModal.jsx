@@ -1,8 +1,14 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import styles from "./cartModal.module.scss";
 import { useCarrinho } from "./../../hooks/hookCarrinho";
 
-const CartModal = ({ onClose }) => {
+// 🚨 IMPORTAÇÕES PARA TRATAMENTO DE ERRO DE AUTENTICAÇÃO
+import { useAuthError } from "./../../hooks/hookError/hookError";
+// Importar o AuthErrorDisplay é opcional aqui, mas mantemos o hook de erro.
+import { useNavigate } from "react-router-dom";
+
+const CartModal = ({ onClose, fetchCards }) => {
+  // Hooks de Dados e Erro do Carrinho
   const {
     carrinho,
     validacao,
@@ -10,7 +16,50 @@ const CartModal = ({ onClose }) => {
     finalizarCompra,
     removerDoCarrinho,
     atualizarQuantidade,
+    // 🔑 Assumindo que useCarrinho expõe o erro do carrinho
+    cartError,
   } = useCarrinho();
+
+  // Lógica de Tratamento de Erro Centralizado
+  const { isAuthError, handleApiError } = useAuthError();
+  const [generalErrorMsg, setGeneralErrorMsg] = useState(null);
+  const navigate = useNavigate();
+
+  // 🚨 useEffect para processar o erro vindo do useCarrinho
+  useEffect(() => {
+    if (cartError) {
+      // Verifica se é um erro de Auth ou um erro Geral
+      const result = handleApiError(cartError);
+
+      if (isAuthError) {
+        // Se for erro de autenticação, fecha o modal imediatamente.
+        // A página de fundo (AnimePage/CardsPage) pegará o erro na próxima renderização.
+        onClose();
+        return;
+      }
+
+      if (result) {
+        // Se result não for null, é um erro geral.
+        setGeneralErrorMsg(result);
+      }
+    } else {
+      setGeneralErrorMsg(null);
+    }
+  }, [cartError, handleApiError, isAuthError, onClose]);
+
+  useEffect(() => {
+    if (isAuthError) {
+      // Limpa o erro geral, se houver
+      setGeneralErrorMsg(null);
+
+      // Redireciona para a rota onde o AuthErrorDisplay está montado
+      navigate("/login", { state: { sessionExpired: true } });
+      // OBS: Se você já usa o AuthErrorDisplay diretamente, você pode apontar para onde ele está.
+
+      // Ou, se AuthErrorDisplay é o que você quer mostrar em tela cheia na URL atual:
+      // Não faça o navigate, mas garanta que o if(isAuthError) abaixo funcione.
+    }
+  }, [isAuthError, navigate]);
 
   const [itensSelecionados, setItensSelecionados] = useState([]);
 
@@ -41,11 +90,24 @@ const CartModal = ({ onClose }) => {
 
   const handleComprar = useCallback(async () => {
     if (!validacao || validacao.items.length === 0) return;
-    await finalizarCompra();
-  }, [validacao, finalizarCompra]);
+
+    const compraSucesso = await finalizarCompra();
+
+    if (compraSucesso) {
+      alert("Compra finalizada com sucesso!");
+      onClose();
+      // 💡 Se a compra alterar o estoque, o fetchCards da página principal deve ser chamado
+      if (fetchCards) {
+        fetchCards();
+      }
+    }
+  }, [validacao, finalizarCompra, onClose, fetchCards]);
 
   if (carrinho.length > 0 && loadingValidacao)
     return <div className={styles.loading}>Carregando validação...</div>;
+
+  // 🚨 Se isAuthError for true, o modal já se fechou no useEffect. Retornamos null.
+  if (isAuthError) return null;
 
   const isCarrinhoVazio = !validacao || validacao.items.length === 0;
 
@@ -56,6 +118,14 @@ const CartModal = ({ onClose }) => {
           &times;
         </button>
         <h2>Seu Carrinho de Compras</h2>
+
+        {/* 🚨 Exibir erro geral, se houver */}
+        {generalErrorMsg && (
+          <div className={styles.errorBox}>
+            <h4>❌ Erro no Carrinho:</h4>
+            <p>{generalErrorMsg}</p>
+          </div>
+        )}
 
         {!isCarrinhoVazio ? (
           <>

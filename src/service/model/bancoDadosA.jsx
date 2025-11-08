@@ -1,11 +1,24 @@
+// src/services/anime.service.js
+
+import {
+  createAuthHeaders,
+  handleResponse,
+} from "./../context/createAuthHeaders";
+
 const API_BASE_URL = "http://localhost:5000/animes";
+
+// ----------------------------------------------------
+// GET - Rotas PROTEGIDAS (REQUEREM TOKEN) 🔑
+// ----------------------------------------------------
 
 // GET - buscar todos os cards
 export async function fetchAllCards() {
   try {
-    const res = await fetch(API_BASE_URL);
-    if (!res.ok) throw new Error("Erro ao buscar cards");
-    return await res.json();
+    const res = await fetch(API_BASE_URL, {
+      method: "GET",
+      headers: createAuthHeaders(false), // ⬅️ Inclui o Token
+    });
+    return await handleResponse(res);
   } catch (err) {
     console.error("Erro ao carregar cards:", err);
     throw err;
@@ -18,70 +31,72 @@ export async function searchCardsApi(searchTerm) {
     return fetchAllCards();
   }
   try {
-    const res = await fetch(`${API_BASE_URL}/search?q=${searchTerm}`);
-    if (!res.ok) throw new Error("Erro ao buscar cards por termo");
-    return await res.json();
+    const res = await fetch(`${API_BASE_URL}/search?q=${searchTerm}`, {
+      method: "GET",
+      headers: createAuthHeaders(false), // ⬅️ Inclui o Token
+    });
+    return await handleResponse(res);
   } catch (err) {
     console.error("Erro ao pesquisar cards:", err);
     throw err;
   }
 }
 
-// POST - adicionar card
+// ----------------------------------------------------
+// POST, PUT, DELETE (Protegidos)
+// ... (O restante do arquivo permanece inalterado)
+// ----------------------------------------------------
+
 export async function addCardApi(novoCard) {
   try {
     const res = await fetch(API_BASE_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: createAuthHeaders(true),
       body: JSON.stringify(novoCard),
     });
-    if (!res.ok) throw new Error("Erro ao adicionar card");
-    return await res.json();
+    return await handleResponse(res);
   } catch (err) {
     console.error("Erro ao adicionar card:", err);
     throw err;
   }
 }
 
-// PUT - editar card
 export async function editCardApi(id, updatedCard) {
   const { id: _, ...dataToUpdate } = updatedCard;
   try {
     const res = await fetch(`${API_BASE_URL}/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: createAuthHeaders(true),
       body: JSON.stringify(dataToUpdate),
     });
-    if (!res.ok) throw new Error("Erro ao editar card");
-    return await res.json();
+    return await handleResponse(res);
   } catch (err) {
     console.error("Erro ao editar card:", err);
     throw err;
   }
 }
 
-// DELETE - remover card
 export async function deleteCardApi(id) {
   try {
     const res = await fetch(`${API_BASE_URL}/${id}`, {
       method: "DELETE",
+      headers: createAuthHeaders(false),
     });
-    if (!res.ok) throw new Error("Erro ao deletar card");
+    return await handleResponse(res);
   } catch (err) {
     console.error("Erro ao deletar card:", err);
     throw err;
   }
 }
 
-// POST - adicionar avaliação
 export async function addAvaliacaoApi(id, avaliacao) {
   try {
     const res = await fetch(`${API_BASE_URL}/${id}/avaliacao`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: createAuthHeaders(true),
       body: JSON.stringify({ avaliacao }),
     });
-    if (!res.ok) throw new Error("Erro ao adicionar avaliação");
+    return await handleResponse(res);
   } catch (err) {
     console.error("Erro ao enviar avaliação:", err);
     throw err;

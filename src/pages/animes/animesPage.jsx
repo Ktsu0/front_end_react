@@ -10,10 +10,20 @@ import { useCarrinho } from "./../../hooks/hookCarrinho";
 import CartButton from "./../../components/cart/cartButton";
 import CartModal from "./../../components/cart/cartModal";
 import useAnimes from "./../../hooks/hookAnimes";
+import { useAuthError } from "./../../hooks/hookError/hookError";
+import AuthErrorDisplay from "./../../hooks/hookError/hookErrorDisplay"; // Componente de UI para erro Auth
+import { useNavigate } from "react-router-dom";
 
 const AnimePage = () => {
+  // Hooks de Dados e Erro
   const { cards, addCard, editCard, deleteCard, fetchCards, loading, error } =
     useAnimes();
+
+  // Lógica de Tratamento de Erro Centralizado
+  const { isAuthError, handleApiError } = useAuthError();
+  const [generalErrorMsg, setGeneralErrorMsg] = useState(null);
+  const navigate = useNavigate();
+  // Hook de Carrinho (Inalterado)
   const {
     carrinho,
     adicionarAoCarrinho,
@@ -25,15 +35,41 @@ const AnimePage = () => {
     abrirModal,
     fecharModal,
   } = useCarrinho();
+
+  // Estados Locais (Inalterado)
   const [editingCard, setEditingCard] = useState(null);
   const [filteredCards, setFilteredCards] = useState([]);
 
+  // 🚨 NOVO useEffect: Processa o 'error' vindo de useAnimes
+  useEffect(() => {
+    if (error) {
+      const result = handleApiError(error);
+      if (result) {
+        setGeneralErrorMsg(result);
+      }
+    } else {
+      // Limpa o erro geral se o 'error' do useAnimes sumir
+      setGeneralErrorMsg(null);
+    }
+  }, [error, handleApiError]);
+  useEffect(() => {
+    if (isAuthError) {
+      // Se o erro de Auth for detectado, redireciona para a tela de login.
+      // Você pode passar um estado ou parâmetro para mostrar a mensagem de erro.
+      navigate("/auth-error-page", {
+        state: { from: "/animes", message: "Sessão expirada" },
+      });
+    }
+  }, [isAuthError, navigate]);
+
+  // useEffect para Filtragem (Inalterado)
   useEffect(() => {
     if (cards.length > 0) {
       setFilteredCards(cards);
     }
   }, [cards]);
 
+  // Handlers (Inalterado)
   const handleEdit = (card) => setEditingCard({ ...card });
   const handleCloseEdit = () => setEditingCard(null);
 
@@ -48,17 +84,40 @@ const AnimePage = () => {
   const handleFilter = useCallback((filteredListFromPanel) => {
     setFilteredCards(filteredListFromPanel);
   }, []);
+
+  // ----------------------------------------------------
+  // 🚨 LÓGICA DE RENDERIZAÇÃO CONDICIONAL (PRIORIDADE)
+  // ----------------------------------------------------
+
   if (loading) {
-    return <div className={styles.pageContainer}>Carregando Séries...</div>;
+    return <div className={styles.pageContainer}>Carregando Animes...</div>;
   }
 
-  if (error) {
+  // 1. TRATAMENTO DO ERRO DE AUTENTICAÇÃO (Máxima Prioridade)
+  if (isAuthError) {
+    // Usa o componente de UI bonito com botões
+    return <AuthErrorDisplay />;
+  }
+
+  // 2. TRATAMENTO DE ERRO GERAL (Ex: Servidor Offline, Erro 500)
+  if (generalErrorMsg) {
     return (
       <div className={styles.pageContainer}>
-        Erro ao carregar dados: {error}
+        <h1>❌ Erro ao Carregar Dados</h1>
+        <p>Ocorreu um problema ao buscar os dados: {generalErrorMsg}</p>
+        <button
+          onClick={fetchCards}
+          style={{ padding: "10px 15px", marginTop: "10px" }}
+        >
+          Tentar Novamente
+        </button>
       </div>
     );
   }
+
+  // ----------------------------------------------------
+  // RENDERIZAÇÃO NORMAL (Inalterada)
+  // ----------------------------------------------------
 
   return (
     <div className={styles.pageContainer}>

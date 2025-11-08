@@ -6,25 +6,38 @@ import { useAuth } from "../../hooks/hookLogin";
 import LoginModal from "../loginPage/loginModal";
 
 const YOUTUBE_VIDEO_IDS = [
-  "D35RhBgvaKo",
-  "WJALwNxZpTg",
-  "0MZWCUqIKRo",
-  "u9emjalsOsE",
-  "6r6d3njza3A",
-  "-VzTZoUxxHs",
-  "KgCoApvFNAY",
-  "a1q5mtEJiAE",
-  "J7THUfp4xhA",
-  "-cHSj-VCXAU",
-  "24alwcXicnY",
-  "bz7IRehLf9k",
-  "PHvhOPM_5ak",
+  "X1NEyxE1hs0&list=PLGNuNSzt_-vMK2sKpbs9Re7mSatk3rjUQ&index=3", // SmZinho Cassaco
+  "N-uSgDUEe7w&list=PLGNuNSzt_-vMK2sKpbs9Re7mSatk3rjUQ&index=2", // SmZinho U caba Lá
+  "O7Qf4PUqv2c&list=PLGNuNSzt_-vMK2sKpbs9Re7mSatk3rjUQ&index=16", // SmZinho Toda Vez!!
+  "D35RhBgvaKo", // Demon Slayer
+  "ZhtvfN1W5Ag", // Luta epica dragon Ball
+  "iRoTg1zv4PI", // Dragon Ball Vegeta Portugal
+  "uqBBbkuzCTI", // Dragon Ball Vegeta
+  "cU2b8gBhAN8", // Dragon Ball Luta Epic
+  "2UWRCA43thQ", // Dragon Ball Goku e Jiren
+  "MkRyDBprbYY", // Dragon Ball SuperSayajin 3
+  "24alwcXicnY", // Nanatsu no Taizai Escanorrr
+  "yrQxKINBTKY", // Musica boa e animação de mau gosto
+  "u9emjalsOsE", // Minecraft Style
+  "6r6d3njza3A", // Louca na Chapeuzinho
+  "-VzTZoUxxHs", // Todo mundo em Pânico
+  "0MTzLD4tnIs", // Alanzoka dicção
+  "eiz4SxRk-2c", // Respostas incriveis
+  "J7THUfp4xhA", // Castor Chines
+  "-cHSj-VCXAU", // Luta de Anão
+  "bz7IRehLf9k", // Ta pegando fogo
+  "PHvhOPM_5ak", // Musica Macaco
+  "glymdDVbdUk", // Rabisco Marta
+  "ChDof6K--GI", // Marcello
+  "vjuG9DWwWnE", // Rock Lee Vs Gaara
+  "EXmgKdSssCs", // Eu sou Jesus
+  "9Ed19F8W0EI", // God of Duvidoso
 ];
 
 const HomePage = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModlOpen, setIsModalOpen] = useState(false);
   const [targetPath, setTargetPath] = useState(null);
   const [randomVideoId, setRandomVideoId] = useState("");
   const [isMuted, setIsMuted] = useState(true);
@@ -47,19 +60,6 @@ const HomePage = () => {
       setIsModalOpen(true);
     }
   };
-  const handleLoginSuccess = () => {
-    setIsModalOpen(false);
-    if (targetPath) {
-      navigate(targetPath);
-      setTargetPath(null);
-    }
-  };
-
-  const handleModalClose = () => {
-    setIsModalOpen(false);
-    setTargetPath(null); // Também limpa o destino caso feche sem logar
-  };
-
   useEffect(() => {
     const randomIndex = Math.floor(Math.random() * YOUTUBE_VIDEO_IDS.length);
     setRandomVideoId(YOUTUBE_VIDEO_IDS[randomIndex]);

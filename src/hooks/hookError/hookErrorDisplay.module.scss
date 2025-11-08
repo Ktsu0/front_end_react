@@ -1,0 +1,63 @@
+/* src/components/AuthErrorDisplay/AuthErrorDisplay.module.scss */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  text-align: center;
+  padding: 2rem;
+  background-color: #f8f8f8;
+  // Estilo opcional para visualização em caixa:
+  /* border-radius: 8px; */
+  /* box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); */
+}
+
+.title {
+  color: #dc3545; /* Vermelho forte para indicar erro/alerta */
+  margin-bottom: 0.5rem;
+  font-size: 2.5rem;
+}
+
+.message {
+  color: #6c757d;
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+}
+
+button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s, transform 0.1s;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.loginBtn {
+  background-color: #007bff; /* Azul primário */
+  color: white;
+
+  &:hover {
+    background-color: #0056b3;
+  }
+}
+
+.homeBtn {
+  background-color: #6c757d; /* Cinza secundário */
+  color: white;
+
+  &:hover {
+    background-color: #5a6268;
+  }
+}
