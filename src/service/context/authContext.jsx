@@ -1,20 +1,5 @@
 const API_BASE_URL = "http://localhost:5000";
 
-// --- Funções de Armazenamento do Token ---
-// Recomendação: Use localStorage para persistência de sessão
-export function setAuthToken(token) {
-  if (token) {
-    localStorage.setItem("authToken", token);
-  } else {
-    localStorage.removeItem("authToken");
-  }
-}
-
-export function getAuthToken() {
-  return localStorage.getItem("authToken");
-}
-// -----------------------------------------
-
 // Função genérica para lidar com a resposta da API e erros
 async function handleAuthResponse(res) {
   // Se a resposta for um erro (res.ok é false)
@@ -27,9 +12,11 @@ async function handleAuthResponse(res) {
         "Erro de conexão ou credenciais inválidas."
     );
   }
-  const token = await res.text();
-
-  return token;
+  try {
+    return await res.json();
+  } catch (e) {
+    return { success: true };
+  }
 }
 
 // ------------------------------------------------------------------
@@ -42,11 +29,7 @@ export async function loginApi(email, password) {
     body: JSON.stringify({ email, password: password }),
   });
 
-  const token = await handleAuthResponse(res);
-
-  // 🔑 ARMAZENA O TOKEN APÓS SUCESSO
-  setAuthToken(token);
-  return token;
+  return handleAuthResponse(res);
 }
 
 // ------------------------------------------------------------------
@@ -81,10 +64,5 @@ export async function registerApi(userData) {
     }),
   });
 
-  const token = await handleAuthResponse(res);
-
-  // 🔑 ARMAZENA O TOKEN APÓS SUCESSO (Usuário é logado automaticamente)
-  setAuthToken(token);
-
-  return token;
+  return handleAuthResponse(res);
 }

@@ -1,14 +1,9 @@
-// src/services/anime.service.js
-
-import {
-  createAuthHeaders,
-  handleResponse,
-} from "./../context/createAuthHeaders";
+import { handleApiResponse } from "./../handleProtected";
 
 const API_BASE_URL = "http://localhost:5000/animes";
 
 // ----------------------------------------------------
-// GET - Rotas PROTEGIDAS (REQUEREM TOKEN) 🔑
+// GET - Rotas PROTEGIDAS (REQUEREM COOKIE) 🔑
 // ----------------------------------------------------
 
 // GET - buscar todos os cards
@@ -16,9 +11,10 @@ export async function fetchAllCards() {
   try {
     const res = await fetch(API_BASE_URL, {
       method: "GET",
-      headers: createAuthHeaders(false), // ⬅️ Inclui o Token
+      headers: {},
+      credentials: "include",
     });
-    return await handleResponse(res);
+    return await handleApiResponse(res);
   } catch (err) {
     console.error("Erro ao carregar cards:", err);
     throw err;
@@ -33,9 +29,10 @@ export async function searchCardsApi(searchTerm) {
   try {
     const res = await fetch(`${API_BASE_URL}/search?q=${searchTerm}`, {
       method: "GET",
-      headers: createAuthHeaders(false), // ⬅️ Inclui o Token
+      headers: {},
+      credentials: "include",
     });
-    return await handleResponse(res);
+    return await handleApiResponse(res);
   } catch (err) {
     console.error("Erro ao pesquisar cards:", err);
     throw err;
@@ -44,17 +41,17 @@ export async function searchCardsApi(searchTerm) {
 
 // ----------------------------------------------------
 // POST, PUT, DELETE (Protegidos)
-// ... (O restante do arquivo permanece inalterado)
 // ----------------------------------------------------
 
 export async function addCardApi(novoCard) {
   try {
     const res = await fetch(API_BASE_URL, {
       method: "POST",
-      headers: createAuthHeaders(true),
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify(novoCard),
     });
-    return await handleResponse(res);
+    return await handleApiResponse(res);
   } catch (err) {
     console.error("Erro ao adicionar card:", err);
     throw err;
@@ -66,10 +63,11 @@ export async function editCardApi(id, updatedCard) {
   try {
     const res = await fetch(`${API_BASE_URL}/${id}`, {
       method: "PUT",
-      headers: createAuthHeaders(true),
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify(dataToUpdate),
     });
-    return await handleResponse(res);
+    return await handleApiResponse(res);
   } catch (err) {
     console.error("Erro ao editar card:", err);
     throw err;
@@ -80,9 +78,10 @@ export async function deleteCardApi(id) {
   try {
     const res = await fetch(`${API_BASE_URL}/${id}`, {
       method: "DELETE",
-      headers: createAuthHeaders(false),
+      headers: {},
+      credentials: "include",
     });
-    return await handleResponse(res);
+    return await handleApiResponse(res);
   } catch (err) {
     console.error("Erro ao deletar card:", err);
     throw err;
@@ -93,10 +92,11 @@ export async function addAvaliacaoApi(id, avaliacao) {
   try {
     const res = await fetch(`${API_BASE_URL}/${id}/avaliacao`, {
       method: "POST",
-      headers: createAuthHeaders(true),
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ avaliacao }),
     });
-    return await handleResponse(res);
+    return await handleApiResponse(res);
   } catch (err) {
     console.error("Erro ao enviar avaliação:", err);
     throw err;
