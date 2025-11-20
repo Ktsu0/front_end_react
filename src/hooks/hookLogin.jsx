@@ -1,64 +1,87 @@
-import { createContext, useState, useContext } from "react";
-import { loginApi, registerApi } from "./../service/context/authContext";
+// hooks/useAuth.jsx
+import { useState, useCallback, useEffect } from "react";
+import {
+  loginApi,
+  registerApi,
+  logoutApi,
+  getUserRole,
+} from "./../service/context/authContext";
 
-const AuthContext = createContext();
-
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => {
-    try {
-      const storedUser = localStorage.getItem("user");
-      return storedUser ? JSON.parse(storedUser) : null;
-    } catch (error) {
-      console.error("Erro ao carregar usuário do localStorage:", error);
-      return null;
-    }
-  });
+export function useAuthController() {
+  const [user, setUser] = useState(null);
+  const [loadingUser, setLoadingUser] = useState(true);
   const [loading, setLoading] = useState(false);
 
+  // -------------------------------
+  // Carregar roles do usuário
+  // -------------------------------
+  const loadUser = useCallback(async () => {
+    setLoadingUser(true);
+    try {
+      const roles = await getUserRole();
+      setUser(roles ? { roles } : null);
+    } catch {
+      setUser(null);
+    } finally {
+      setLoadingUser(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadUser();
+  }, [loadUser]);
+
+  // -------------------------------
+  // Login
+  // -------------------------------
   const login = async (email, password) => {
     setLoading(true);
     try {
-      const data = await loginApi(email, password);
-      setUser(data);
-      localStorage.setItem("user", JSON.stringify(data));
-      return data;
-    } catch (error) {
-      throw error;
+      await loginApi(email, password);
+      await loadUser();
+    } catch (err) {
+      throw err;
     } finally {
       setLoading(false);
     }
   };
-  const register = async (userData) => {
+
+  // -------------------------------
+  // Registro
+  // -------------------------------
+  const register = async (data) => {
     setLoading(true);
     try {
-      const data = await registerApi(userData);
-      setUser(data);
-      localStorage.setItem("user", JSON.stringify(data));
-      return data;
-    } catch (error) {
-      throw error;
+      await registerApi(data);
+      await loadUser();
+    } catch (err) {
+      throw err;
     } finally {
       setLoading(false);
     }
   };
 
-  const loginWithGoogle = async () => {
-    alert("Login com Google ainda não implementado 😅");
-  };
-
-  const logout = () => {
+  // -------------------------------
+  // Logout
+  // -------------------------------
+  const logout = async () => {
+    await logoutApi();
     setUser(null);
-    localStorage.removeItem("user");
   };
 
-  return (
-    <AuthContext.Provider
-      value={{ user, loading, login, register, loginWithGoogle, logout }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
-};
+  // -------------------------------
+  // Valor derivado → Admin?
+  // -------------------------------
+  const isAdmin = user?.roles?.includes("ADMIN") || false;
 
-// Hook para consumir o contexto
-export const useAuth = () => useContext(AuthContext);
+  return {
+    user,
+    isAdmin,
+    loading,
+    loadingUser,
+    login,
+    register,
+    logout,
+    reloadUser: loadUser,
+  };
+}

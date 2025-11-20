@@ -8,11 +8,13 @@ const CreateCard = ({
   imagem,
   estoque,
   valorUnitario,
-  tipo, // 💡 NOVO PROP: Recebe 'anime' ou 'serie'
+  tipo,
   onAddToCart,
 
   onEdit,
   onDelete,
+
+  isAdmin, // 🔥 PROP NOVA
 }) => {
   const cardData = {
     id,
@@ -22,15 +24,15 @@ const CreateCard = ({
     imagem,
     estoque,
     valorUnitario,
-    tipo, // 💡 INCLUSÃO: Passando o tipo para o CarrinhoProvider
+    tipo,
   };
 
   const handleAddToCart = () => {
     onAddToCart(cardData, 1);
   };
+
   const isAvailable = estoque > 0;
 
-  // Formata o tipo para exibição (ex: "anime" -> "Anime")
   const displayTipo = tipo
     ? tipo.charAt(0).toUpperCase() + tipo.slice(1)
     : "Não definido";
@@ -43,7 +45,6 @@ const CreateCard = ({
           <div>
             <h3>{titulo}</h3>
 
-            {/* Renderização condicional para descrição/detalhes (inalterada) */}
             {descricao && typeof descricao === "object" ? (
               <div
                 className={styles.row}
@@ -62,7 +63,6 @@ const CreateCard = ({
               <p>{descricao}</p>
             )}
 
-            {/* 💡 INFORMAÇÃO DO TIPO: Adicionado para clareza (Opcional, mas útil) */}
             <p className={styles.cardType}>**Tipo:** {displayTipo}</p>
 
             <div className={styles.commerceInfo}>
@@ -87,32 +87,36 @@ const CreateCard = ({
         </div>
       </div>
 
-      <div className={styles.cardActions}>
-        {isAvailable && (
-          <span
-            className={styles.cartButton}
-            onClick={handleAddToCart}
-            title="Adicionar ao Carrinho"
-          >
-            🛒
-          </span>
-        )}
+      {/* 🔥 SOMENTE MOSTRA AÇÕES SE FOR ADMIN */}
+      {isAdmin && (
+        <div className={styles.cardActions}>
+          {isAvailable && (
+            <span
+              className={styles.cartButton}
+              onClick={handleAddToCart}
+              title="Adicionar ao Carrinho"
+            >
+              🛒
+            </span>
+          )}
 
-        <span
-          className={styles.editIcon}
-          onClick={() => onEdit(cardData)}
-          title="Editar Card"
-        >
-          ✏️
-        </span>
-        <span
-          className={styles.deleteIcon}
-          onClick={() => onDelete(id)}
-          title="Deletar Card"
-        >
-          🗑️
-        </span>
-      </div>
+          <span
+            className={styles.editIcon}
+            onClick={() => onEdit(cardData)}
+            title="Editar Card"
+          >
+            ✏️
+          </span>
+
+          <span
+            className={styles.deleteIcon}
+            onClick={() => onDelete(id)}
+            title="Deletar Card"
+          >
+            🗑️
+          </span>
+        </div>
+      )}
     </div>
   );
 };

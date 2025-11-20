@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import styles from "./loginModal.module.scss";
-import { useAuth } from "./../../hooks/hookLogin";
+import { useAuth } from "./../../service/context/authProvider";
 import { useLoginForm } from "./../../hooks/hookLoginForm"; // Certifique-se de que o caminho está correto
 
 const LoginModal = ({ onClose, onLoginSuccess }) => {

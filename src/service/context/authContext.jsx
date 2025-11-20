@@ -1,68 +1,71 @@
+// service/authService.js
 const API_BASE_URL = "http://localhost:5000";
 
-// Função genérica para lidar com a resposta da API e erros
+// -------------------------------
+// Tratamento de resposta da API
+// -------------------------------
 async function handleAuthResponse(res) {
-  // Se a resposta for um erro (res.ok é false)
   if (!res.ok) {
-    // Tentamos ler o corpo para obter a mensagem de erro da API
-    const errorData = await res.json();
-    throw new Error(
-      errorData.message ||
-        errorData.error ||
-        "Erro de conexão ou credenciais inválidas."
-    );
+    const data = await res.json();
+    throw new Error(data.message || data.error || "Erro de autenticação.");
   }
+
   try {
     return await res.json();
-  } catch (e) {
+  } catch {
     return { success: true };
   }
 }
 
-// ------------------------------------------------------------------
-// POST - Login de Usuário: Recebe Token e Salva
-// ------------------------------------------------------------------
+// -------------------------------
+// GET → Roles do usuário (cookie)
+// -------------------------------
+export async function getUserRole() {
+  const res = await fetch(`${API_BASE_URL}/users/role`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!res.ok) return null;
+
+  const data = await res.json();
+  return data.roles;
+}
+
+// -------------------------------
+// POST → Login
+// -------------------------------
 export async function loginApi(email, password) {
   const res = await fetch(`${API_BASE_URL}/users/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password: password }),
+    credentials: "include",
+    body: JSON.stringify({ email, password }),
   });
 
   return handleAuthResponse(res);
 }
 
-// ------------------------------------------------------------------
-// POST - Registro de Usuário: Recebe Token e Salva
-// ------------------------------------------------------------------
+// -------------------------------
+// POST → Registro
+// -------------------------------
 export async function registerApi(userData) {
-  const {
-    email,
-    password,
-    firstName,
-    lastName,
-    Cpf,
-    telefone,
-    cep,
-    genero,
-    nascimento,
-  } = userData;
-
   const res = await fetch(`${API_BASE_URL}/users`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      email,
-      password,
-      firstName,
-      lastName,
-      Cpf,
-      telefone,
-      cep,
-      genero,
-      nascimento,
-    }),
+    credentials: "include",
+    body: JSON.stringify(userData),
   });
 
   return handleAuthResponse(res);
+}
+
+// -------------------------------
+// POST → Logout
+// -------------------------------
+export async function logoutApi() {
+  await fetch(`${API_BASE_URL}/users/logout`, {
+    method: "POST",
+    credentials: "include",
+  });
 }

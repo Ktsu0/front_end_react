@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import styles from "./homePage.module.scss";
 import Footer from "../footer/footer";
 import { useState, useEffect } from "react";
-import { useAuth } from "../../hooks/hookLogin";
+import { useAuth } from "../../service/context/authProvider";
 import LoginModal from "../loginPage/loginModal";
 
 const YOUTUBE_VIDEO_IDS = [

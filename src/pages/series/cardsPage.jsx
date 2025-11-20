@@ -21,6 +21,8 @@ import { useAuthError } from "./../../hooks/hookError/hookError";
 import AuthErrorDisplay from "./../../hooks/hookError/hookErrorDisplay";
 import { useNavigate } from "react-router-dom";
 
+import { useAuth } from "./../../service/context/authProvider";
+
 const CardsPage = () => {
   // Hooks de Dados e Erro
   const { cards, addCard, editCard, deleteCard, fetchCards, loading, error } =
@@ -30,6 +32,8 @@ const CardsPage = () => {
   const { isAuthError, handleApiError } = useAuthError();
   const [generalErrorMsg, setGeneralErrorMsg] = useState(null);
   const navigate = useNavigate();
+
+  const { isAdmin } = useAuth();
 
   // Hook de Carrinho
   const {
@@ -142,10 +146,11 @@ const CardsPage = () => {
             onAddToCart={adicionarAoCarrinho}
             onEdit={handleEdit}
             onDelete={handleDelete}
+            isAdmin={isAdmin}
           />
         ))}
 
-        <AddCard onAdd={handleAdd} />
+        {isAdmin && <AddCard onAdd={handleAdd} />}
 
         {editingCard && (
           <EditCardModal

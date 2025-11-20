@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./header.module.scss";
 import LoginModal from "./../loginPage/loginModal";
-import { useAuth } from "./../../hooks/hookLogin";
+import { useAuth } from "./../../service/context/authProvider";
 
 const Header = () => {
   const [showLogin, setShowLogin] = useState(false);
