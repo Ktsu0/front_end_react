@@ -67,7 +67,7 @@ const CreateCard = ({
 
             <div className={styles.commerceInfo}>
               <p className={styles.price}>
-                <strong>Preço:</strong> R${" "}
+                <strong>Preço:</strong> R$
                 {valorUnitario ? valorUnitario.toFixed(2) : "N/A"}
               </p>
               <p
@@ -87,19 +87,20 @@ const CreateCard = ({
         </div>
       </div>
 
+      <div className={styles.cardActions}>
+        {isAvailable && (
+          <span
+            className={styles.cartButton}
+            onClick={handleAddToCart}
+            title="Adicionar ao Carrinho"
+          >
+            🛒
+          </span>
+        )}
+      </div>
       {/* 🔥 SOMENTE MOSTRA AÇÕES SE FOR ADMIN */}
       {isAdmin && (
         <div className={styles.cardActions}>
-          {isAvailable && (
-            <span
-              className={styles.cartButton}
-              onClick={handleAddToCart}
-              title="Adicionar ao Carrinho"
-            >
-              🛒
-            </span>
-          )}
-
           <span
             className={styles.editIcon}
             onClick={() => onEdit(cardData)}
