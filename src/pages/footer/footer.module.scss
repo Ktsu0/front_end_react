@@ -1,8 +1,20 @@
 .footer {
   margin-top: auto;
-  background: #222;
-  color: #fff;
-  padding: 2vh 3vw;
+  background: rgba(15, 15, 15, 0.95);
+  backdrop-filter: blur(10px);
+  color: #888;
+  padding: 40px 20px;
   text-align: center;
-  font-size: 1.8vh;
+  font-size: 0.95rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+
+  &::before {
+    content: "© 2026 GabiStore - Sua coleção favorita em um só lugar";
+    display: block;
+    margin-bottom: 5px;
+    color: #aaa;
+    font-weight: 700;
+  }
 }

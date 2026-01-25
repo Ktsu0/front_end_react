@@ -2,126 +2,82 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  font-family: Arial, sans-serif;
-  background: transparent;
-}
-
-.deleteModal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  .deleteContent {
-    background: #111;
-    padding: 3vh 3vw;
-    border-radius: 2vh;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    gap: 2vh;
-    p {
-      color: #fff;
-      font-size: 1.8vh;
-    }
-    button {
-      padding: 1vh 2vw;
-      border: none;
-      border-radius: 1vh;
-      cursor: pointer;
-      font-size: 1.8vh;
-      margin: 0.5vh;
-      transition: background 0.3s ease;
-    }
-    button:first-of-type {
-      background: #e74c3c;
-      color: #fff;
-    }
-    button:last-of-type {
-      background: #444;
-      color: #fff;
-    }
-    button:first-of-type:hover {
-      background: #c0392b;
-    }
-    button:last-of-type:hover {
-      background: #666;
-    }
-  }
+  background-color: #0f0f0f;
+  overflow-x: hidden;
 }
 
 .cardsContainer {
-  background-color: transparent;
   display: grid;
-  justify-content: center;
-  align-items: center;
-  gap: 4vh;
-  padding: 20vh 2vw;
-  max-width: 95vw;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 30px;
+  padding: 120px 5vw 50px;
+  width: 100%;
+  max-width: 1600px;
   margin: 0 auto;
+  min-height: 60vh;
 
-  /* Grid responsivo usando porcentagem e vw */
-  grid-template-columns: repeat(auto-fit, minmax(25vw, 1fr));
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
+  }
+
   @media (max-width: 768px) {
-    grid-template-columns: repeat(auto-fit, minmax(45vw, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    padding: 100px 4vw 40px;
+    gap: 15px;
   }
+
   @media (max-width: 480px) {
-    grid-template-columns: 80vw;
+    grid-template-columns: repeat(2, 1fr); // Dois cards lado a lado no celular
+    padding: 90px 3vw 30px;
+    gap: 12px;
   }
 }
 
-/* Novo Wrapper para cada Card */
-
-.cardWrapper {
-  position: relative;
-  margin-bottom: 30px;
-}
-
-/* Contêiner dos Botões */
-
-.cardActions {
-  position: absolute;
-  bottom: -30px;
-  right: 0;
-  /* Estilização para os botões */
+.noCardsContainer {
+  grid-column: 1 / -1;
   display: flex;
-  gap: 10px;
-  /* Espaço entre os botões */
-  button {
-    background: #333;
-    color: #fff;
-    border: none;
-    border-radius: 50%;
-    /* Faz o botão ser redondo */
-    width: 30px;
-    height: 30px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background 0.2s ease-in-out;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
-    &:hover {
-      background: #555;
-    }
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 5vh 0;
+  animation: fadeIn 0.6s ease-out;
+}
+
+.noCardsMessage {
+  text-align: center;
+  max-width: 500px;
+  margin-bottom: 10px;
+
+  h2 {
+    font-size: 2rem;
+    font-weight: 900;
+    margin-bottom: 10px;
+    background: linear-gradient(135deg, #fff 0%, #6a4fff 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
-  /* Estilos específicos para diferenciação */
-  .editButton {
-    background: #3498db; // Azul
-    &:hover {
-      background: #2980b9;
-    }
-  }
-  .deleteButton {
-    background: #e74c3c; // Vermelho
-    &:hover {
-      background: #c0392b;
-    }
+
+  p {
+    font-size: 1rem;
+    color: #888;
+    line-height: 1.5;
   }
 }
+
+.centeredAdd {
+  width: 100%;
+  max-width: 250px; // Aligned with min-card size
+  display: flex;
+  justify-content: center;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Modal and Global tweaks might be handled elsewhere, 
+   but specific page animations go here */

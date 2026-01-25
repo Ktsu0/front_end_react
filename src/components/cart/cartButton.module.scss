@@ -1,50 +1,56 @@
-/* Assumindo que o filtro está fixado no lado direito */
 .cartButton {
-  /* ------------------------------------- */
-  /* Posicionamento Fixo (Semelhante ao Filtro, mas flutuante) */
-  /* ------------------------------------- */
   position: fixed;
-  right: 1%;
-  bottom: 2%;
-  z-index: 900;
-
-  /* ------------------------------------- */
-  /* Estilo do Botão */
-  /* ------------------------------------- */
-  background: #ff5722;
+  right: 2vw;
+  bottom: 2vw;
+  z-index: 2500;
+  background: linear-gradient(135deg, #6a4fff, #8c75ff);
   color: white;
   border: none;
-  border-radius: 50%; /* Botão redondo */
-  width: 7vh;
-  height: 7vh;
-  font-size: 28px;
+  border-radius: 50%;
+  width: 70px;
+  height: 70px;
+  font-size: 32px;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 10px 30px rgba(106, 79, 255, 0.4);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
   &:hover {
-    transform: scale(1.1);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.6);
+    transform: scale(1.15) translateY(-5px);
+    box-shadow: 0 15px 40px rgba(106, 79, 255, 0.6);
   }
 
-  /* Contador de Itens (o "badge" vermelho) */
+  &:active {
+    transform: scale(0.95);
+  }
+
   .itemCount {
     position: absolute;
-    top: -20%;
-    right: -5%;
-    width: 3vh;
-    height: 3vh;
-    padding-top: 0.2vh;
-    background: #d32f2f;
+    top: 0;
+    right: 0;
+    width: 25px;
+    height: 25px;
+    background: #ff4f8b;
     color: white;
     border-radius: 50%;
-    font-size: 12px;
-    font-weight: bold;
+    font-size: 14px;
+    font-weight: 900;
     display: flex;
     justify-content: center;
     align-items: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    border: 2px solid #0f0f0f;
+  }
+}
+
+@media (max-width: 768px) {
+  .cartButton {
+    width: 60px;
+    height: 60px;
+    font-size: 26px;
+    right: 5vw;
+    bottom: 5vw;
   }
 }

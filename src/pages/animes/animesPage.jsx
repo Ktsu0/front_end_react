@@ -11,6 +11,7 @@ import { useAuth } from "./../../service/context/authProvider";
 import FilterPanel from "./../../components/filterCard/filter";
 import { useAuthError } from "./../../hooks/hookError/hookError";
 import AddCard from "./../../components/createCards/addCards/addCards";
+import LoadingSpinner from "./../../components/loading/loadingSpinner"; // Importando Spinner
 import AuthErrorDisplay from "./../../hooks/hookError/hookErrorDisplay";
 import EditCardModal from "./../../components/createCards/editCards/editCards";
 import CreateCard from "./../../components/createCards/createCards/createCard";
@@ -41,9 +42,8 @@ const AnimePage = () => {
 
   // Estados Locais (Inalterado)
   const [editingCard, setEditingCard] = useState(null);
-  const [filteredCards, setFilteredCards] = useState([]);
+  const [filteredCards, setFilteredCards] = useState([]); // Inicia vazio
 
-  // 🚨 NOVO useEffect: Processa o 'error' vindo de useAnimes
   useEffect(() => {
     if (error) {
       const result = handleApiError(error);
@@ -51,38 +51,46 @@ const AnimePage = () => {
         setGeneralErrorMsg(result);
       }
     } else {
-      // Limpa o erro geral se o 'error' do useAnimes sumir
       setGeneralErrorMsg(null);
     }
   }, [error, handleApiError]);
+
   useEffect(() => {
     if (isAuthError) {
-      // Se o erro de Auth for detectado, redireciona para a tela de login.
-      // Você pode passar um estado ou parâmetro para mostrar a mensagem de erro.
       navigate("/auth-error-page", {
         state: { from: "/animes", message: "Sessão expirada" },
       });
     }
   }, [isAuthError, navigate]);
 
-  // useEffect para Filtragem (Inalterado)
-  useEffect(() => {
-    if (cards.length > 0) {
-      setFilteredCards(cards);
-    }
-  }, [cards]);
-
   // Handlers (Inalterado)
   const handleEdit = (card) => setEditingCard({ ...card });
   const handleCloseEdit = () => setEditingCard(null);
 
   const handleSaveEdit = async (id, updatedCard) => {
-    await editCard(id, updatedCard);
-    handleCloseEdit();
+    try {
+      await editCard(id, updatedCard);
+      handleCloseEdit();
+    } catch (err) {
+      alert("Erro ao editar card: " + err.message);
+    }
   };
 
-  const handleDelete = (id) => deleteCard(id);
-  const handleAdd = (newCardWithId) => addCard(newCardWithId);
+  const handleDelete = async (id) => {
+    try {
+      await deleteCard(id);
+    } catch (err) {
+      alert("Erro ao excluir card: " + err.message);
+    }
+  };
+
+  const handleAdd = async (newCardWithId) => {
+    try {
+      await addCard(newCardWithId);
+    } catch (err) {
+      alert("Erro ao adicionar card: " + err.message);
+    }
+  };
 
   const handleFilter = useCallback((filteredListFromPanel) => {
     setFilteredCards(filteredListFromPanel);
@@ -93,7 +101,13 @@ const AnimePage = () => {
   // ----------------------------------------------------
 
   if (loading) {
-    return <div className={styles.pageContainer}>Carregando Animes...</div>;
+    return (
+      <div className={styles.pageContainer}>
+        <Header />
+        <LoadingSpinner />
+        <Footer />
+      </div>
+    );
   }
 
   // 1. TRATAMENTO DO ERRO DE AUTENTICAÇÃO (Máxima Prioridade)
@@ -118,29 +132,44 @@ const AnimePage = () => {
     );
   }
 
-  // ----------------------------------------------------
-  // RENDERIZAÇÃO NORMAL (Inalterada)
-  // ----------------------------------------------------
-
   return (
     <div className={styles.pageContainer}>
       <Header></Header>
       <FilterPanel cards={cards} onFilter={handleFilter} />
       <main className={styles.cardsContainer}>
-        {filteredCards.map((card) => (
-          <CreateCard
-            key={card.id}
-            {...card}
-            estoque={card.estoque}
-            valorUnitario={card.valorUnitario}
-            onAddToCart={adicionarAoCarrinho}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            isAdmin={isAdmin}
-          />
-        ))}
-
-        {isAdmin && <AddCard onAdd={handleAdd} />}
+        {filteredCards.length > 0 ? (
+          <>
+            {filteredCards.map((card) => (
+              <CreateCard
+                key={card.id}
+                {...card}
+                estoque={card.estoque}
+                valorUnitario={card.valorUnitario}
+                onAddToCart={adicionarAoCarrinho}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                isAdmin={isAdmin}
+              />
+            ))}
+            {isAdmin && <AddCard onAdd={handleAdd} />}
+          </>
+        ) : (
+          <div className={styles.noCardsContainer}>
+            <div className={styles.noCardsMessage}>
+              <h2>Nenhum anime encontrado.</h2>
+              {isAdmin ? (
+                <p>Clique no botão gigante abaixo para adicionar o primeiro!</p>
+              ) : (
+                <p>Volte mais tarde ou tente outros filtros.</p>
+              )}
+            </div>
+            {isAdmin && (
+              <div className={styles.centeredAdd}>
+                <AddCard onAdd={handleAdd} />
+              </div>
+            )}
+          </div>
+        )}
 
         {editingCard && (
           <EditCardModal

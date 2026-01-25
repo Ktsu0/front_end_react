@@ -3,23 +3,21 @@ import styles from "./createCard.module.scss";
 const CreateCard = ({
   id,
   titulo,
-  descricao,
+  meta,
   detalhes,
   imagem,
   estoque,
   valorUnitario,
   tipo,
   onAddToCart,
-
   onEdit,
   onDelete,
-
-  isAdmin, // 🔥 PROP NOVA
+  isAdmin,
 }) => {
   const cardData = {
     id,
     titulo,
-    descricao,
+    meta,
     detalhes,
     imagem,
     estoque,
@@ -27,97 +25,78 @@ const CreateCard = ({
     tipo,
   };
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e) => {
+    e.stopPropagation();
     onAddToCart(cardData, 1);
   };
 
   const isAvailable = estoque > 0;
 
-  const displayTipo = tipo
-    ? tipo.charAt(0).toUpperCase() + tipo.slice(1)
-    : "Não definido";
-
   return (
     <div className={styles.cardWrapper}>
       <div className={styles.card}>
-        <div className={styles.cardFront}>
-          <img src={imagem} alt={titulo} />
-          <div>
-            <h3>{titulo}</h3>
+        <div className={styles.cardBorder}></div>
 
-            {descricao && typeof descricao === "object" ? (
-              <div
-                className={styles.row}
-                key={`${descricao.tema}-${descricao.temporada}-${id}`}
-              >
-                <p>
-                  <strong>Temporada:</strong>
-                  <br /> {descricao.temporada}
-                </p>
-                <p>
-                  <strong>Tema:</strong>
-                  <br /> {descricao.tema}
-                </p>
-              </div>
-            ) : (
-              <p>{descricao}</p>
-            )}
+        {!isAvailable && <div className={styles.stockBadge}>Esgotado</div>}
 
-            <p className={styles.cardType}>**Tipo:** {displayTipo}</p>
+        <img src={imagem} alt={titulo} loading="lazy" />
 
-            <div className={styles.commerceInfo}>
-              <p className={styles.price}>
-                <strong>Preço:</strong> R$
-                {valorUnitario ? valorUnitario.toFixed(2) : "N/A"}
-              </p>
-              <p
-                className={`${styles.stock} ${
-                  isAvailable ? styles.inStock : styles.outOfStock
-                }`}
-              >
-                <strong>Estoque:</strong> {isAvailable ? estoque : "ESGOTADO"}
-              </p>
-            </div>
+        <div className={styles.infoOverlay}>
+          <h3>{titulo}</h3>
+
+          <div className={styles.metaInfo}>
+            {meta?.temporada && <span>{meta.temporada}</span>}
+            {meta?.tema && <span>{meta.tema}</span>}
+          </div>
+
+          <div className={styles.price}>
+            <small>R$</small>{" "}
+            {valorUnitario ? valorUnitario.toFixed(2) : "0.00"}
           </div>
         </div>
 
-        <div className={styles.cardBack}>
+        <div className={styles.cardActions}>
+          {isAvailable && (
+            <button
+              className={`${styles.actionBtn} ${styles.cart}`}
+              onClick={handleAddToCart}
+              title="Adicionar ao Carrinho"
+            >
+              🛒
+            </button>
+          )}
+
+          {isAdmin && (
+            <>
+              <button
+                className={`${styles.actionBtn} ${styles.edit}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit(cardData);
+                }}
+                title="Editar"
+              >
+                ✏️
+              </button>
+              <button
+                className={`${styles.actionBtn} ${styles.delete}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(id);
+                }}
+                title="Excluir"
+              >
+                🗑️
+              </button>
+            </>
+          )}
+        </div>
+
+        <div className={styles.sinopseBox}>
           <h4>{titulo}</h4>
           <p>{detalhes}</p>
         </div>
       </div>
-
-      <div className={styles.cardActions}>
-        {isAvailable && (
-          <span
-            className={styles.cartButton}
-            onClick={handleAddToCart}
-            title="Adicionar ao Carrinho"
-          >
-            🛒
-          </span>
-        )}
-      </div>
-      {/* 🔥 SOMENTE MOSTRA AÇÕES SE FOR ADMIN */}
-      {isAdmin && (
-        <div className={styles.cardActions}>
-          <span
-            className={styles.editIcon}
-            onClick={() => onEdit(cardData)}
-            title="Editar Card"
-          >
-            ✏️
-          </span>
-
-          <span
-            className={styles.deleteIcon}
-            onClick={() => onDelete(id)}
-            title="Deletar Card"
-          >
-            🗑️
-          </span>
-        </div>
-      )}
     </div>
   );
 };

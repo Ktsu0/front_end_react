@@ -2,24 +2,24 @@ import { useState } from "react";
 import styles from "./addCards.module.scss";
 
 const AddCard = ({ onAdd }) => {
-  const [showModal, setShowModal] = useState(false); // 🚀 ATUALIZAÇÃO 1: Adicionar 'tipo' ao estado inicial
+  const [showModal, setShowModal] = useState(false);
 
   const [form, setForm] = useState({
     titulo: "",
-    descricao: {
+    meta: {
       temporada: "",
       tema: "",
     },
     detalhes: "",
     imagem: "",
-    estoque: 0 || "",
-    valorUnitario: 0.0 || "",
-    tipo: "serie", // 💡 NOVO CAMPO: Padrão é 'serie'
+    estoque: 0,
+    valorUnitario: 0.0,
+    tipo: "serie",
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    let newValue = value; // Tratar valores numéricos
+    let newValue = value;
 
     if (name === "estoque") {
       newValue = parseInt(value) || 0;
@@ -30,13 +30,12 @@ const AddCard = ({ onAdd }) => {
     if (name === "temporada" || name === "tema") {
       setForm((prev) => ({
         ...prev,
-        descricao: {
-          ...prev.descricao,
+        meta: {
+          ...prev.meta,
           [name]: newValue,
         },
       }));
     } else {
-      // 🚀 ATUALIZAÇÃO 2: Atualizar 'tipo', 'estoque', 'valorUnitario', 'titulo', etc.
       setForm({ ...form, [name]: newValue });
     }
   };
@@ -47,137 +46,151 @@ const AddCard = ({ onAdd }) => {
       ...form,
       estoque: parseInt(form.estoque),
       valorUnitario: parseFloat(form.valorUnitario),
-    }; // 💡 Agora, onAdd deve saber qual rota usar (series ou animes)
+    };
 
-    onAdd(payload); // Limpa o formulário
+    onAdd(payload);
 
     setForm({
       titulo: "",
-      descricao: { temporada: "", tema: "" },
+      meta: { temporada: "", tema: "" },
       detalhes: "",
       imagem: "",
       estoque: 0,
       valorUnitario: 0.0,
-      tipo: "serie", // Reseta para o padrão
+      tipo: "serie",
     });
     setShowModal(false);
   };
 
   return (
     <>
-      {" "}
       <div className={styles.addCardWrapper} onClick={() => setShowModal(true)}>
-        {" "}
         <div className={styles.addCard}>
-          <span className={styles.plus}>+</span>{" "}
-        </div>{" "}
-      </div>{" "}
+          <span className={styles.plus}>+</span>
+        </div>
+      </div>
+
       {showModal && (
         <div className={styles.addCardModal}>
-          {" "}
           <div className={styles.modalContent}>
-            <h2>Adicionar Novo Item</h2>{" "}
+            <h2>✨ Adicionar Novo Item</h2>
             <form onSubmit={handleSubmit}>
-              {/* 🚀 NOVO CAMPO DE SELEÇÃO */} <label>Tipo de Mídia</label>{" "}
-              <select
-                name="tipo"
-                value={form.tipo}
-                onChange={handleChange}
-                required
-              >
-                <option value="serie">Série</option>
-                <option value="anime">Anime</option>{" "}
-              </select>
-              <label>Título</label>{" "}
-              <input
-                type="text"
-                name="titulo"
-                value={form.titulo}
-                onChange={handleChange}
-                required
-              />
-              {/* Temporada e Tema lado a lado */}{" "}
+              <div className={styles.formGroup}>
+                <label>Tipo de Mídia</label>
+                <select
+                  name="tipo"
+                  value={form.tipo}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="serie">📺 Série</option>
+                  <option value="anime">⛩️ Anime</option>
+                </select>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Título da Obra</label>
+                <input
+                  type="text"
+                  name="titulo"
+                  placeholder="Ex: Breaking Bad"
+                  value={form.titulo}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
               <div className={styles.row}>
-                {" "}
-                <div>
-                  <label>Temporada</label>{" "}
+                <div className={styles.formGroup}>
+                  <label>Temporada/Volume</label>
                   <input
                     type="text"
                     name="temporada"
-                    value={form.descricao.temporada}
+                    placeholder="Ex: 5 Temporadas"
+                    value={form.meta.temporada}
                     onChange={handleChange}
                     required
-                  />{" "}
-                </div>{" "}
-                <div>
-                  <label>Tema</label>{" "}
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label>Gênero / Tema</label>
                   <input
                     type="text"
                     name="tema"
-                    value={form.descricao.tema}
+                    placeholder="Ex: Drama / Crime"
+                    value={form.meta.tema}
                     onChange={handleChange}
                     required
-                  />{" "}
-                </div>{" "}
+                  />
+                </div>
               </div>
-              {/* Valor Unitário e Estoque lado a lado */}{" "}
+
               <div className={styles.row}>
-                {" "}
-                <div>
-                  <label>Valor Unitário (R$)</label>{" "}
+                <div className={styles.formGroup}>
+                  <label>Valor Unitário (R$)</label>
                   <input
                     type="number"
                     step="0.01"
                     name="valorUnitario"
+                    placeholder="0.00"
                     value={form.valorUnitario}
                     onChange={handleChange}
                     required
-                  />{" "}
-                </div>{" "}
-                <div>
-                  <label>Estoque Inicial</label>{" "}
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label>Estoque Inicial</label>
                   <input
                     type="number"
                     name="estoque"
                     min="0"
+                    placeholder="0"
                     value={form.estoque}
                     onChange={handleChange}
                     required
-                  />{" "}
-                </div>{" "}
+                  />
+                </div>
               </div>
-              {/* Fim dos novos campos */} <label>Detalhes</label>{" "}
-              <textarea
-                name="detalhes"
-                value={form.detalhes}
-                onChange={handleChange}
-                required
-              />
-              <label>Imagem (URL)</label>{" "}
-              <input
-                type="text"
-                name="imagem"
-                value={form.imagem}
-                onChange={handleChange}
-                required
-              />{" "}
+
+              <div className={styles.formGroup}>
+                <label>Sobre a obra</label>
+                <textarea
+                  name="detalhes"
+                  placeholder="Escreva uma breve sinopse..."
+                  value={form.detalhes}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>URL da Capa (Imagem)</label>
+                <input
+                  type="text"
+                  name="imagem"
+                  placeholder="https://exemplo.com/imagem.jpg"
+                  value={form.imagem}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
               <div className={styles.modalButtons}>
-                {" "}
-                <button type="submit" className={styles.addBtn}>
-                  Adicionar{" "}
-                </button>{" "}
+                <button type="submit" className={styles.submitBtn}>
+                  🚀 Criar Card
+                </button>
                 <button
                   type="button"
                   className={styles.cancelBtn}
                   onClick={() => setShowModal(false)}
                 >
-                  Cancelar{" "}
-                </button>{" "}
-              </div>{" "}
-            </form>{" "}
-          </div>{" "}
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-      )}{" "}
+      )}
     </>
   );
 };

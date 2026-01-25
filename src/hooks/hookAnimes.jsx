@@ -20,7 +20,7 @@ const useAnimes = () => {
     setError(null);
     try {
       const data = await fetchAllCards();
-      setCards(data);
+      setCards(data || []);
     } catch (err) {
       setError(err.message);
       setCards([]);
@@ -52,7 +52,7 @@ const useAnimes = () => {
         setError(err.message);
       }
     },
-    [fetchCards]
+    [fetchCards],
   );
 
   const editCard = useCallback(
@@ -64,7 +64,7 @@ const useAnimes = () => {
         setError(err.message);
       }
     },
-    [fetchCards]
+    [fetchCards],
   );
 
   const deleteCard = useCallback(async (id) => {

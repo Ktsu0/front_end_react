@@ -66,7 +66,7 @@ const CartModal = ({ onClose, fetchCards }) => {
   const handleToggleSelect = useCallback((item) => {
     const key = item.produtoId;
     setItensSelecionados((prev) =>
-      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key],
     );
   }, []);
 
@@ -78,7 +78,7 @@ const CartModal = ({ onClose, fetchCards }) => {
 
     if (
       window.confirm(
-        `Tem certeza que deseja remover ${itensSelecionados.length} itens do carrinho?`
+        `Tem certeza que deseja remover ${itensSelecionados.length} itens do carrinho?`,
       )
     ) {
       itensSelecionados.forEach((produtoId) => {
@@ -114,10 +114,10 @@ const CartModal = ({ onClose, fetchCards }) => {
   return (
     <div className={styles.modalOverlay}>
       <div className={styles.modalContent}>
-        <button className={styles.closeButton} onClick={onClose}>
-          &times;
+        <button className={styles.closeButton} onClick={onClose} title="Fechar">
+          ✕
         </button>
-        <h2>Seu Carrinho de Compras</h2>
+        <h2>🛒 Seu Carrinho</h2>
 
         {/* 🚨 Exibir erro geral, se houver */}
         {generalErrorMsg && (
@@ -163,7 +163,7 @@ const CartModal = ({ onClose, fetchCards }) => {
                         onChange={(e) =>
                           atualizarQuantidade(
                             item.produtoId,
-                            Number(e.target.value)
+                            Number(e.target.value),
                           )
                         }
                       />
@@ -176,7 +176,7 @@ const CartModal = ({ onClose, fetchCards }) => {
                     <span className={styles.valueCell}>
                       R$
                       {(item.valorUnitario * item.quantidadeDesejada).toFixed(
-                        2
+                        2,
                       )}
                     </span>
 

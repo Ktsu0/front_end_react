@@ -3,8 +3,8 @@
 /* ======================================= */
 .addCardWrapper {
   perspective: 1000px;
-  width: 25vw;
-  height: 45vh;
+  width: 100%;
+  aspect-ratio: 2 / 3;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -13,156 +13,178 @@
   .addCard {
     width: 100%;
     height: 100%;
-    border: 2px dashed rgba(255, 255, 255, 0.4);
-    border-radius: 2vh;
-    background: rgba(255, 255, 255, 0.05);
+    border: 3px dashed rgba(106, 79, 255, 0.5);
+    border-radius: 20px;
+    background: rgba(106, 79, 255, 0.05);
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.8);
+      background: rgba(106, 79, 255, 0.1);
+      border-color: #6a4fff;
+      border-style: solid;
       transform: scale(1.05);
+      box-shadow: 0 0 30px rgba(106, 79, 255, 0.2);
     }
 
     .plus {
-      font-size: 10vh;
-      font-weight: bold;
-      color: rgba(255, 255, 255, 0.7);
-      transition: color 0.3s ease;
+      font-size: 5rem;
+      font-weight: 300;
+      color: #6a4fff;
+      transition: all 0.3s ease;
     }
 
     &:hover .plus {
+      transform: rotate(90deg) scale(1.2);
       color: #fff;
+      text-shadow: 0 0 20px #6a4fff;
     }
   }
 }
 
 /* ======================================= */
-/* ESTILOS DO MODAL DE EDIÇÃO/CRIAÇÃO      */
+/* ESTILOS DO MODAL (ESTRUTURA COMPACTA)  */
 /* ======================================= */
 .addCardModal {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.7);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 5000;
+  padding: 20px;
+  animation: modalEnter 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
 
   .modalContent {
-    background: #111;
-    padding: 3vh 3vw;
-    border-radius: 2vh;
-    width: 40vw;
-    max-width: 500px;
+    background: rgba(20, 20, 20, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(106, 79, 255, 0.15);
+    padding: 2.5vh 2.5vw;
+    border-radius: 28px;
+    width: 100%;
+    max-width: 600px;
+    position: relative;
     display: flex;
     flex-direction: column;
-    gap: 2vh;
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.15);
-    animation: fadeIn 0.3s ease;
+    gap: 1.5vh;
 
     h2 {
       color: #fff;
       text-align: center;
-      margin-bottom: 2vh;
+      margin: 0;
       font-size: 2.2vh;
+      font-weight: 800;
+      background: linear-gradient(90deg, #fff, #6a4fff);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
     }
 
     form {
       display: flex;
       flex-direction: column;
-      gap: 1.5vh;
+      gap: 1.2vh;
 
-      label {
-        color: #ccc;
-        font-size: 1.8vh;
-      }
-
-      input,
-      textarea {
-        width: 100%;
-        padding: 1vh;
-        border-radius: 1vh;
-        border: none;
-        outline: none;
-        background: rgba(255, 255, 255, 0.08);
-        color: #fff;
-        font-size: 1.8vh;
-        transition: all 0.3s ease;
-
-        &:focus {
-          background: rgba(255, 255, 255, 0.15);
-          box-shadow: 0 0 8px #6a4fff;
-        }
-      }
-
-      /* 🚀 NOVO ESTILO PARA INPUTS DESABILITADOS (Valor e Estoque) */
-      input:disabled {
-        background: rgba(255, 255, 255, 0.03);
-        color: #888;
-        cursor: not-allowed;
-        box-shadow: none;
-      }
-
-      textarea {
-        min-height: 80px;
-        resize: none;
-      }
-
-      /* 🔹 Linha com dois campos (ex: Temporada/Tema e Valor/Estoque) */
-      .row {
+      .formGroup {
         display: flex;
-        gap: 1vw;
-        justify-content: space-between;
+        flex-direction: column;
+        gap: 0.5vh;
 
-        div {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-        }
-      }
-
-      /* 🔹 Botões */
-      .modalButtons {
-        /* Usando o nome da classe do JSX */
-        display: flex;
-        justify-content: center;
-        gap: 1vw;
-        margin-top: 2vh;
-
-        button {
-          padding: 1vh 2vw;
-          border: none;
-          border-radius: 1vh;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          font-weight: bold;
-          font-size: 1.8vh;
+        label {
+          color: #777;
+          font-size: 1.2vh;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin-left: 2px;
         }
 
-        /* Renomeado 'addBtn' para 'submit' e 'cancelBtn' para 'button' padrão */
-        button[type="submit"] {
-          background: #6a4fff;
+        input,
+        textarea,
+        select {
+          width: 100%;
+          padding: 1.2vh 15px;
+          border-radius: 12px;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          outline: none;
+          background: rgba(255, 255, 255, 0.03);
           color: #fff;
+          font-size: 1.6vh;
+          transition: all 0.3s ease;
 
-          &:hover {
-            background: #8a6bff;
-            box-shadow: 0 0 10px #8a6bff;
+          &:focus {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: #6a4fff;
+            box-shadow: 0 0 0 3px rgba(106, 79, 255, 0.1);
+          }
+
+          &:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
           }
         }
 
-        button[type="button"] {
-          background: #333;
-          color: #ccc;
+        textarea {
+          min-height: 70px;
+          resize: none;
+        }
+      }
+
+      .row {
+        display: flex;
+        gap: 15px;
+        
+        .formGroup {
+          flex: 1;
+        }
+      }
+
+      .modalButtons {
+        display: flex;
+        gap: 12px;
+        margin-top: 1vh;
+
+        button {
+          flex: 1;
+          padding: 1.4vh;
+          border: none;
+          border-radius: 12px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          font-weight: 800;
+          font-size: 1.6vh;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .submitBtn {
+          background: linear-gradient(135deg, #6a4fff, #8c75ff);
+          color: #fff;
+          box-shadow: 0 8px 20px rgba(106, 79, 255, 0.3);
 
           &:hover {
-            background: #555;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(106, 79, 255, 0.4);
+            filter: brightness(1.1);
+          }
+        }
+
+        .cancelBtn {
+          background: rgba(255, 255, 255, 0.05);
+          color: #999;
+          border: 1px solid rgba(255, 255, 255, 0.05);
+
+          &:hover {
+            background: rgba(255, 255, 255, 0.1);
             color: #fff;
           }
         }
@@ -171,53 +193,29 @@
   }
 }
 
-/* ======================================= */
-/* ANIMAÇÃO E RESPONSIVIDADE               */
-/* ======================================= */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+@keyframes modalEnter {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 }
 
-@media (max-width: 768px) {
-  .addCardWrapper {
-    width: 45vw;
-    height: 35vh;
-
-    .addCard .plus {
-      font-size: 7vh;
-    }
-  }
-
-  .addCardModal .modalContent {
-    width: 80vw;
+/* Responsividade de Altura (Prevenir Scroll) */
+@media (max-height: 700px) {
+  .modalContent {
+    max-height: 95vh;
+    overflow-y: auto;
+    padding: 20px;
   }
 }
 
 @media (max-width: 480px) {
-  .addCardWrapper {
-    width: 80vw;
-    height: 40vh;
-
-    .addCard .plus {
-      font-size: 6vh;
-    }
-  }
-
-  .addCardModal {
-    .modalContent {
-      width: 90vw;
-    }
-    .modalContent form .row {
-      /* Corrigido para atingir o .row dentro do form */
+  .modalContent {
+    padding: 25px 20px;
+    border-radius: 24px;
+    gap: 15px;
+    
+    .row {
       flex-direction: column;
-      gap: 1.5vh;
+      gap: 10px;
     }
   }
 }

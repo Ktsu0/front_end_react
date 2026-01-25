@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import styles from "./header.module.scss";
 import LoginModal from "./../loginPage/loginModal";
 import { useAuth } from "./../../service/context/authProvider";
@@ -7,45 +7,60 @@ import { useAuth } from "./../../service/context/authProvider";
 const Header = () => {
   const [showLogin, setShowLogin] = useState(false);
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const handleButtonClick = () => {
     if (user) {
       logout();
+      navigate("/");
     } else {
       setShowLogin(true);
     }
   };
 
-  const navigate = useNavigate();
-
   const handleNavigation = (path) => {
     navigate(path);
   };
 
+  const isActive = (path) => location.pathname === path;
+
   return (
     <header id="header" className={styles.header}>
-      <h1 className={styles.title}>Melhores Séries</h1>
+      <div className={styles.leftSection}>
+        <h1 className={styles.title} onClick={() => navigate("/")}>
+          🐦‍🔥
+        </h1>
+      </div>
 
-      <div className={styles.navigationButtons}>
+      <nav className={styles.navigationButtons}>
         <button
-          className={styles.navButton}
+          className={`${styles.navButton} ${isActive("/series") ? styles.active : ""}`}
           onClick={() => handleNavigation("/series")}
         >
-          Séries
+          📺 Séries
         </button>
         <button
-          className={styles.navButton}
+          className={`${styles.navButton} ${isActive("/anime") ? styles.active : ""}`}
           onClick={() => handleNavigation("/anime")}
         >
-          Anime
+          ⛩️ Animes
+        </button>
+      </nav>
+
+      <div className={styles.rightSection}>
+        {user && <span className={styles.userEmail}>{user.email}</span>}
+        <button className={styles.loginBtn} onClick={handleButtonClick}>
+          {user ? "Sair" : "Entrar"}
         </button>
       </div>
 
-      <button className={styles.loginBtn} onClick={handleButtonClick}>
-        {user ? "Logout" : "Entrar"}
-      </button>
-
-      {showLogin && !user && <LoginModal onClose={() => setShowLogin(false)} />}
+      {showLogin && !user && (
+        <LoginModal
+          onClose={() => setShowLogin(false)}
+          onLoginSuccess={() => setShowLogin(false)}
+        />
+      )}
     </header>
   );
 };
