@@ -3,68 +3,82 @@
 import {
   createContext,
   useState,
+  useEffect,
   useContext,
   useMemo,
   useCallback,
 } from "react";
 import {
-  validarCarrinho,
-  finalizarCompra,
+  finalizarCompra as apiFinalizarCompra,
+  validarCarrinho as apiValidarCarrinho,
 } from "./../service/context/useCarrinho";
+import StatusModal from "../components/loading/statusModal";
 
 const CarrinhoContext = createContext();
 
 export const CarrinhoProvider = ({ children, fetchCards }) => {
   // 1. ESTADOS
-  const [carrinho, setCarrinho] = useState([]);
+  const [carrinho, setCarrinho] = useState(() => {
+    const localData = localStorage.getItem("carrinho");
+    return localData ? JSON.parse(localData) : [];
+  });
   const [modalAberto, setModalAberto] = useState(false);
-  const [validacao, setValidacao] = useState(null);
-  const [loadingValidacao, setLoadingValidacao] = useState(false);
+  const [status, setStatus] = useState({
+    show: false,
+    message: "",
+    type: "success",
+  });
 
-  // 2. FUNÇÕES DE LÓGICA E INTEGRAÇÃO COM SERVICE
+  // Persistência local do carrinho
+  useEffect(() => {
+    localStorage.setItem("carrinho", JSON.stringify(carrinho));
+  }, [carrinho]);
 
-  // Lógica: Chamada ao service de validação
-  const handleValidarCarrinho = useCallback(async (itensParaValidar) => {
-    // Se a lista estiver vazia, apenas limpa a validação
-    if (itensParaValidar.length === 0) {
-      setValidacao(null);
-      return;
-    }
-
-    setLoadingValidacao(true);
+  // 🔥 SINCRONIZAÇÃO SILENCIOSA COM O BANCO
+  // Busca os dados reais (estoque/preço) sem travar a tela
+  const syncCart = useCallback(async (itensParaSincronizar) => {
+    if (!itensParaSincronizar || itensParaSincronizar.length === 0) return;
     try {
-      const data = await validarCarrinho(itensParaValidar);
-      setValidacao(data);
-    } catch (error) {
-      console.error("Erro na validação do carrinho:", error);
-      setValidacao(null);
-    } finally {
-      setLoadingValidacao(false);
+      const data = await apiValidarCarrinho(itensParaSincronizar);
+      if (data && data.items) {
+        setCarrinho((prev) => {
+          return data.items.map((apiItem) => {
+            const itemLocal = prev.find(
+              (li) => li.produtoId === apiItem.produtoId,
+            );
+            return {
+              ...apiItem,
+              // Mantemos a quantidade que o usuário escolheu, mas com dados reais do banco
+              quantidadeDesejada: itemLocal
+                ? itemLocal.quantidadeDesejada
+                : apiItem.quantidadeDesejada,
+            };
+          });
+        });
+      }
+    } catch (e) {
+      console.warn("[Carrinho] Falha na sincronização silenciosa:", e.message);
     }
   }, []);
 
-  // Lógica: Limpar e revalidar
+  // Sincronizar ao abrir o modal para garantir dados frescos
+  useEffect(() => {
+    if (modalAberto && carrinho.length > 0) {
+      syncCart(carrinho);
+    }
+  }, [modalAberto, syncCart]);
+
+  // Lógica: Limpar
   const limparCarrinho = useCallback(() => {
     setCarrinho([]);
-    setValidacao(null);
-    handleValidarCarrinho([]); // Revalida (limpa)
-  }, [handleValidarCarrinho]);
+  }, []);
 
   // Lógica: Remover item
-  const removerDoCarrinho = useCallback(
-    (produtoId) => {
-      setCarrinho((prevCarrinho) => {
-        const novaLista = prevCarrinho.filter(
-          (item) => item.produtoId !== produtoId
-        );
-        handleValidarCarrinho(novaLista); // Revalida
-        return novaLista;
-      });
-    },
-    [handleValidarCarrinho]
-  );
+  const removerDoCarrinho = useCallback((produtoId) => {
+    setCarrinho((prev) => prev.filter((item) => item.produtoId !== produtoId));
+  }, []);
 
-  // Lógica: Atualizar quantidade
+  // Lógica: Atualizar quantidade (Sem validação instantânea no servidor)
   const atualizarQuantidade = useCallback(
     (produtoId, novaQuantidade) => {
       if (novaQuantidade <= 0) {
@@ -72,58 +86,36 @@ export const CarrinhoProvider = ({ children, fetchCards }) => {
         return;
       }
 
-      setCarrinho((prevCarrinho) => {
-        const novaLista = prevCarrinho.map((item) => {
-          if (item.produtoId === produtoId) {
-            const estoqueMaximo = item.estoqueDisponivel;
-            return {
-              ...item,
-              quantidadeDesejada: Math.min(novaQuantidade, estoqueMaximo),
-            };
-          }
-          return item;
-        });
-        handleValidarCarrinho(novaLista); // Revalida
-        return novaLista;
-      });
+      setCarrinho((prev) =>
+        prev.map((item) =>
+          item.produtoId === produtoId
+            ? { ...item, quantidadeDesejada: novaQuantidade }
+            : item,
+        ),
+      );
     },
-    [removerDoCarrinho, handleValidarCarrinho]
+    [removerDoCarrinho],
   );
 
   // Lógica: Adicionar item
   const adicionarAoCarrinho = useCallback(
     (cardData, quantidade = 1) => {
-      // (Mantive a lógica interna de estoque e alertas aqui, pois é lógica de negócio)
+      let novaLista;
       setCarrinho((prevCarrinho) => {
-        let novaLista;
-
         const itemExistente = prevCarrinho.find(
-          (item) => item.produtoId === cardData.id
+          (item) => item.produtoId === cardData.id,
         );
 
-        // --- Lógica de estoque e adição ---
         if (itemExistente) {
-          const novaQuantidade = itemExistente.quantidadeDesejada + quantidade;
-
-          if (novaQuantidade > cardData.estoque) {
-            alert(
-              `Não é possível adicionar mais. Limite de estoque é ${cardData.estoque} unidades.`
-            );
-            return prevCarrinho;
-          }
-
           novaLista = prevCarrinho.map((item) =>
             item.produtoId === cardData.id
-              ? { ...item, quantidadeDesejada: novaQuantidade }
-              : item
+              ? {
+                  ...item,
+                  quantidadeDesejada: item.quantidadeDesejada + quantidade,
+                }
+              : item,
           );
         } else {
-          if (quantidade > cardData.estoque) {
-            alert(
-              `Não é possível adicionar. Limite de estoque é ${cardData.estoque} unidades.`
-            );
-            return prevCarrinho;
-          }
           novaLista = [
             ...prevCarrinho,
             {
@@ -136,88 +128,96 @@ export const CarrinhoProvider = ({ children, fetchCards }) => {
             },
           ];
         }
-        // --- Fim da lógica de estoque e adição ---
-
-        handleValidarCarrinho(novaLista); // Revalida
         return novaLista;
       });
+
+      // 🔥 Sincroniza imediatamente após adicionar para pegar o estoque real
+      syncCart(novaLista || [cardData]);
     },
-    [handleValidarCarrinho]
+    [syncCart],
   );
 
-  // Lógica: Chamada ao service de compra
-  const handleFinalizarCompra = useCallback(async () => {
-    // Lógica de pré-validação antes da chamada à API
-    if (
-      !validacao ||
-      validacao.items.length === 0 ||
-      validacao.validacao.erros.length > 0
-    ) {
-      alert("Não é possível finalizar a compra. Corrija os erros de estoque.");
-      return;
-    }
+  // Cálculos locais (sem esperar backend)
+  const stats = useMemo(() => {
+    const totalItens = carrinho.reduce(
+      (sum, i) => sum + i.quantidadeDesejada,
+      0,
+    );
+    const valorTotal = carrinho.reduce(
+      (sum, i) => sum + i.valorUnitario * i.quantidadeDesejada,
+      0,
+    );
+    return { totalItens, valorTotal };
+  }, [carrinho]);
 
-    const { valorTotal } = validacao.validacao;
-    if (!window.confirm(`Confirmar compra de R$ ${valorTotal.toFixed(2)}?`)) {
+  // Lógica: Chamada ao service de compra (Aqui o Prisma valida o estoque final)
+  const handleFinalizarCompra = useCallback(async () => {
+    if (carrinho.length === 0) return;
+
+    if (
+      !window.confirm(`Confirmar compra de R$ ${stats.valorTotal.toFixed(2)}?`)
+    ) {
       return;
     }
 
     try {
-      const data = await finalizarCompra(carrinho); // ⬅️ Chama o service
-      alert(Array.isArray(data) ? data[0] : "Compra finalizada com sucesso!");
+      const data = await apiFinalizarCompra(carrinho);
+      setStatus({
+        show: true,
+        message: Array.isArray(data) ? data[0] : "Compra realizada!",
+        type: "success",
+      });
       limparCarrinho();
       setModalAberto(false);
-
       if (fetchCards) fetchCards();
     } catch (error) {
-      alert("Erro ao finalizar a compra. Tente novamente.");
-      console.error("Erro de API na compra:", error);
-      handleValidarCarrinho(carrinho); // Força revalidação para mostrar erros de estoque
+      setStatus({
+        show: true,
+        message: error.message || "Erro no estoque. Tente novamente.",
+        type: "error",
+      });
+      // Sincroniza em caso de erro para mostrar o estoque atualizado
+      syncCart(carrinho);
     }
-  }, [validacao, carrinho, limparCarrinho, handleValidarCarrinho, fetchCards]);
-
-  // Lógica: Cálculo
-  const totalItensCarrinho = useMemo(
-    () => carrinho.reduce((total, item) => total + item.quantidadeDesejada, 0),
-    [carrinho]
-  );
-
-  // 3. CONTEXTO E HOOK DE CONSUMO
+  }, [carrinho, stats, limparCarrinho, fetchCards, syncCart]);
 
   const value = useMemo(
     () => ({
       carrinho,
-      validacao,
       modalAberto,
-      loadingValidacao,
-      totalItensCarrinho,
+      totalItensCarrinho: stats.totalItens,
+      totalValorCarrinho: stats.valorTotal,
       abrirModal: () => setModalAberto(true),
       fecharModal: () => setModalAberto(false),
       adicionarAoCarrinho,
       removerDoCarrinho,
       atualizarQuantidade,
       limparCarrinho,
-      finalizarCompra: handleFinalizarCompra, // Expõe a função do hook
-      validarCarrinho: () => handleValidarCarrinho(carrinho), // Força revalidação do estado atual
+      finalizarCompra: handleFinalizarCompra,
+      setStatus,
     }),
     [
       carrinho,
-      validacao,
       modalAberto,
-      loadingValidacao,
-      totalItensCarrinho,
+      stats,
       adicionarAoCarrinho,
       removerDoCarrinho,
       atualizarQuantidade,
       limparCarrinho,
       handleFinalizarCompra,
-      handleValidarCarrinho,
-    ]
+    ],
   );
 
   return (
     <CarrinhoContext.Provider value={value}>
       {children}
+      {status.show && (
+        <StatusModal
+          message={status.message}
+          type={status.type}
+          onClose={() => setStatus({ ...status, show: false })}
+        />
+      )}
     </CarrinhoContext.Provider>
   );
 };

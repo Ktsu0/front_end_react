@@ -47,6 +47,8 @@ const CardsPage = () => {
     modalAberto,
     abrirModal,
     fecharModal,
+    // 💡 IMPORTAR SETSTATUS
+    setStatus,
   } = useCarrinho();
 
   // Estados e Handlers (Inalterados)
@@ -78,17 +80,36 @@ const CardsPage = () => {
   const handleSaveEdit = async (id, updatedCard) => {
     try {
       await editCard(id, updatedCard);
+      setStatus({
+        show: true,
+        message: "Card atualizado com sucesso!",
+        type: "success",
+      });
       handleCloseEdit();
     } catch (err) {
-      alert("Erro ao editar card: " + err.message);
+      setStatus({
+        show: true,
+        message: "Erro ao editar card: " + err.message,
+        type: "error",
+      });
     }
   };
 
   const handleDelete = async (id) => {
+    if (!window.confirm("Deseja realmente excluir esta série?")) return;
     try {
       await deleteCard(id);
+      setStatus({
+        show: true,
+        message: "Série removida com sucesso!",
+        type: "success",
+      });
     } catch (err) {
-      alert("Erro ao excluir card: " + err.message);
+      setStatus({
+        show: true,
+        message: "Erro ao excluir card: " + err.message,
+        type: "error",
+      });
     }
   };
 
@@ -96,7 +117,11 @@ const CardsPage = () => {
     try {
       await addCard(newCardWithId);
     } catch (err) {
-      alert("Erro ao adicionar card: " + err.message);
+      setStatus({
+        show: true,
+        message: "Erro ao adicionar card: " + err.message,
+        type: "error",
+      });
     }
   };
 

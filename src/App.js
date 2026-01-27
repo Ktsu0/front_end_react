@@ -24,15 +24,13 @@ function App() {
         <div className={styles.appContainer}>
           <Routes>
             <Route path="/" element={<Layout />}>
-              {/* Rotas Públicas */}
               <Route index element={<HomePage />} />
-              {/* Rotas Protegidas */}
+
               <Route element={<PrivateRoute />}>
                 <Route path="series" element={<CardsPage />} />
                 <Route path="anime" element={<AnimePage />} />
               </Route>
               <Route path="auth-error-page" element={<AuthErrorDisplay />} />
-              {/* 404 */}
               <Route path="*" element={<h1>404 | Página Não Encontrada</h1>} />
             </Route>
           </Routes>

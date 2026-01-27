@@ -38,6 +38,8 @@ const AnimePage = () => {
     modalAberto,
     abrirModal,
     fecharModal,
+    // 💡 IMPORTAR SETSTATUS
+    setStatus,
   } = useCarrinho();
 
   // Estados Locais (Inalterado)
@@ -70,17 +72,36 @@ const AnimePage = () => {
   const handleSaveEdit = async (id, updatedCard) => {
     try {
       await editCard(id, updatedCard);
+      setStatus({
+        show: true,
+        message: "Card atualizado com sucesso!",
+        type: "success",
+      });
       handleCloseEdit();
     } catch (err) {
-      alert("Erro ao editar card: " + err.message);
+      setStatus({
+        show: true,
+        message: "Erro ao editar card: " + err.message,
+        type: "error",
+      });
     }
   };
 
   const handleDelete = async (id) => {
+    if (!window.confirm("Deseja realmente excluir este item?")) return;
     try {
       await deleteCard(id);
+      setStatus({
+        show: true,
+        message: "Card removido com sucesso!",
+        type: "success",
+      });
     } catch (err) {
-      alert("Erro ao excluir card: " + err.message);
+      setStatus({
+        show: true,
+        message: "Erro ao excluir card: " + err.message,
+        type: "error",
+      });
     }
   };
 
@@ -88,7 +109,11 @@ const AnimePage = () => {
     try {
       await addCard(newCardWithId);
     } catch (err) {
-      alert("Erro ao adicionar card: " + err.message);
+      setStatus({
+        show: true,
+        message: "Erro ao adicionar card: " + err.message,
+        type: "error",
+      });
     }
   };
 

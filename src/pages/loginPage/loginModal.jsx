@@ -1,17 +1,20 @@
-// components/LoginModal.js (O componente View)
-
+// components/LoginModal.js
 import { useState } from "react";
 import styles from "./loginModal.module.scss";
 import { useAuth } from "./../../service/context/authProvider";
-import { useLoginForm } from "./../../hooks/hookLoginForm"; // Certifique-se de que o caminho está correto
+import { useLoginForm } from "./../../hooks/hookLoginForm";
 
 const LoginModal = ({ onClose, onLoginSuccess }) => {
-  const [isRegister, setIsRegister] = useState(false);
+  // Estados de visualização: 'login', 'register', 'forgot'
+  const [view, setView] = useState("login");
 
-  // 1. Usa o hook de formulário para obter todos os estados e setters
+  const isRegister = view === "register";
+  const isForgot = view === "forgot";
+
+  // Hook de formulário
   const form = useLoginForm(isRegister);
 
-  // 2. Obtém as funções de autenticação do seu hook de Auth
+  // Hook de Auth
   const { login, register, loginWithGoogle, loading } = useAuth();
 
   const handleSubmit = async (e) => {
@@ -19,19 +22,21 @@ const LoginModal = ({ onClose, onLoginSuccess }) => {
     if (loading) return;
 
     try {
-      if (isRegister) {
-        // Obtém e valida os dados de registro (a validação lança um erro se falhar)
+      if (view === "register") {
         const registerData = form.getRegisterData();
-        await register(registerData); // Chama a função do seu hook de Auth
-      } else {
-        await login(form.email, form.password); // Chama a função do seu hook de Auth
+        await register(registerData);
+      } else if (view === "login") {
+        await login(form.email, form.password);
+      } else if (view === "forgot") {
+        // Lógica de recuperação (exemplo: alerta de sucesso)
+        alert(`Um e-mail de recuperação foi enviado para: ${form.email}`);
+        setView("login");
+        return;
       }
 
-      // 3. Limpa os campos e fecha o modal
       form.clearFields();
       onLoginSuccess ? onLoginSuccess() : onClose();
     } catch (err) {
-      // Captura erros de validação (do useLoginForm) ou erros da API (do useAuth)
       alert(err.message);
     }
   };
@@ -39,16 +44,21 @@ const LoginModal = ({ onClose, onLoginSuccess }) => {
   return (
     <div className={styles.overlay}>
       <div className={styles.modal}>
-        <button className={styles.closeBtn} onClick={onClose}>
+        <button className={styles.closeBtn} onClick={onClose} type="button">
           ✕
         </button>
 
-        <h2>{isRegister ? "Criar conta" : "Entrar"}</h2>
+        <h2>
+          {isForgot
+            ? "Recuperar Senha"
+            : isRegister
+              ? "Criar conta"
+              : "Bem-vindo"}
+        </h2>
 
         <form onSubmit={handleSubmit}>
           {isRegister && (
             <>
-              {/* Nome/Sobrenome */}
               <div className={styles.nameFields}>
                 <label>
                   Nome:
@@ -56,6 +66,7 @@ const LoginModal = ({ onClose, onLoginSuccess }) => {
                     type="text"
                     value={form.firstName}
                     onChange={(e) => form.setFirstName(e.target.value)}
+                    placeholder="João"
                     required
                   />
                 </label>
@@ -65,12 +76,12 @@ const LoginModal = ({ onClose, onLoginSuccess }) => {
                     type="text"
                     value={form.lastName}
                     onChange={(e) => form.setLastName(e.target.value)}
+                    placeholder="Silva"
                     required
                   />
                 </label>
               </div>
 
-              {/* CPF */}
               <label>
                 CPF:
                 <input
@@ -82,31 +93,6 @@ const LoginModal = ({ onClose, onLoginSuccess }) => {
                 />
               </label>
 
-              {/* Telefone */}
-              <label>
-                Telefone:
-                <input
-                  type="tel"
-                  value={form.telefone}
-                  onChange={(e) => form.setTelefone(e.target.value)}
-                  placeholder="(00) 00000-0000"
-                  required
-                />
-              </label>
-
-              {/* CEP */}
-              <label>
-                CEP:
-                <input
-                  type="text"
-                  value={form.cep}
-                  onChange={(e) => form.setCep(e.target.value)}
-                  placeholder="00000-000"
-                  required
-                />
-              </label>
-
-              {/* Gênero e Nascimento */}
               <div className={styles.genderBirth}>
                 <label>
                   Gênero:
@@ -119,7 +105,6 @@ const LoginModal = ({ onClose, onLoginSuccess }) => {
                     <option value="Masculino">Masculino</option>
                     <option value="Feminino">Feminino</option>
                     <option value="Outro">Outro</option>
-                    <option value="Prefiro não dizer">Prefiro não dizer</option>
                   </select>
                 </label>
                 <label>
@@ -132,30 +117,45 @@ const LoginModal = ({ onClose, onLoginSuccess }) => {
                   />
                 </label>
               </div>
+
+              <label>
+                Telefone:
+                <input
+                  type="tel"
+                  value={form.telefone}
+                  onChange={(e) => form.setTelefone(e.target.value)}
+                  placeholder="(00) 00000-0000"
+                  required
+                />
+              </label>
             </>
           )}
 
-          {/* E-mail */}
+          {/* E-mail (Sempre visível ou apenas no Forgot/Login/Register) */}
           <label>
             E-mail:
             <input
               type="email"
               value={form.email}
               onChange={(e) => form.setEmail(e.target.value)}
+              placeholder="seu@email.com"
               required
             />
           </label>
 
-          {/* Senha */}
-          <label>
-            Senha:
-            <input
-              type="password"
-              value={form.password}
-              onChange={(e) => form.setSenha(e.target.value)}
-              required
-            />
-          </label>
+          {/* Senha (Apenas em Login/Register) */}
+          {!isForgot && (
+            <label>
+              Senha:
+              <input
+                type="password"
+                value={form.password}
+                onChange={(e) => form.setSenha(e.target.value)}
+                placeholder="********"
+                required
+              />
+            </label>
+          )}
 
           {/* Confirmação de Senha (apenas Registro) */}
           {isRegister && (
@@ -165,25 +165,37 @@ const LoginModal = ({ onClose, onLoginSuccess }) => {
                 type="password"
                 value={form.confirmSenha}
                 onChange={(e) => form.setConfirmSenha(e.target.value)}
+                placeholder="********"
                 required
               />
             </label>
           )}
 
-          {/* Links de Login (apenas Login) */}
-          {!isRegister && (
+          {/* Link para Esqueci Senha (apenas em Login) */}
+          {view === "login" && (
             <div className={styles.links}>
-              <a href="#">Esqueceu a senha?</a>
+              <span
+                className={styles.toggleLink}
+                onClick={() => setView("forgot")}
+              >
+                Esqueceu a senha?
+              </span>
             </div>
           )}
 
           {/* Botão Principal */}
           <button type="submit" className={styles.loginBtn} disabled={loading}>
-            {loading ? "Aguarde..." : isRegister ? "Registrar" : "Entrar"}
+            {loading
+              ? "Aguarde..."
+              : isForgot
+                ? "Enviar Link"
+                : isRegister
+                  ? "Finalizar Cadastro"
+                  : "Entrar na Conta"}
           </button>
 
           {/* Botão Google (apenas Login) */}
-          {!isRegister && (
+          {view === "login" && (
             <button
               type="button"
               className={styles.googleBtn}
@@ -196,24 +208,34 @@ const LoginModal = ({ onClose, onLoginSuccess }) => {
 
           {/* Switch de Modo */}
           <p className={styles.switch}>
-            {isRegister ? (
+            {isForgot ? (
               <>
-                Já tem conta?{" "}
+                Lembrou a senha?{" "}
                 <span
                   className={styles.toggleLink}
-                  onClick={() => setIsRegister(false)}
+                  onClick={() => setView("login")}
                 >
-                  Entrar
+                  Voltar ao Login
+                </span>
+              </>
+            ) : isRegister ? (
+              <>
+                Já possuo uma conta?{" "}
+                <span
+                  className={styles.toggleLink}
+                  onClick={() => setView("login")}
+                >
+                  Entrar aqui
                 </span>
               </>
             ) : (
               <>
-                Não tem conta?{" "}
+                Novo por aqui?{" "}
                 <span
                   className={styles.toggleLink}
-                  onClick={() => setIsRegister(true)}
+                  onClick={() => setView("register")}
                 >
-                  Registrar-se
+                  Crie sua conta
                 </span>
               </>
             )}

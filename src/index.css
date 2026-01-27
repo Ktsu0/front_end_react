@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
 body {
   margin: 0;
   padding: 0;
@@ -24,20 +26,56 @@ code {
     monospace;
 }
 
-/* Custom Scrollbar for premium feel */
+/* Custom Scrollbar Premium com Gradiente */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0f0f0f;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #333;
+  background: rgba(15, 15, 15, 0.8);
   border-radius: 10px;
 }
 
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #6a4fff 0%, #8c75ff 50%, #a78bfa 100%);
+  border-radius: 10px;
+  border: 2px solid rgba(15, 15, 15, 0.8);
+  transition: all 0.3s ease;
+}
+
 ::-webkit-scrollbar-thumb:hover {
-  background: #444;
+  background: linear-gradient(180deg, #7d5aff 0%, #9d85ff 50%, #b899ff 100%);
+  box-shadow: 0 0 10px rgba(106, 79, 255, 0.5);
+}
+
+/* Smooth scrolling para toda a página */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Remover outline padrão e adicionar foco personalizado */
+*:focus-visible {
+  outline: 2px solid #6a4fff;
+  outline-offset: 2px;
+}
+
+/* Seleção de texto personalizada */
+::selection {
+  background: rgba(106, 79, 255, 0.3);
+  color: #ffffff;
+}
+
+::-moz-selection {
+  background: rgba(106, 79, 255, 0.3);
+  color: #ffffff;
+}
+/* Prevenir fundo branco em inputs com autocomplete (Chrome/Safari) */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #1a1a1a inset !important;
+  -webkit-text-fill-color: white !important;
+  transition: background-color 5000s ease-in-out 0s;
 }

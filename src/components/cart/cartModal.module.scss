@@ -17,15 +17,22 @@
   border-radius: 30px;
   width: 95%;
   max-width: 1000px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 30px rgba(106, 79, 255, 0.15);
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.5),
+    0 0 30px rgba(106, 79, 255, 0.15);
   color: #fff;
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
   animation: modalSlideUp 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
 
-  &::-webkit-scrollbar { width: 6px; }
-  &::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 10px;
+  }
 
   h2 {
     text-align: center;
@@ -102,7 +109,11 @@
 }
 
 .itemInfo {
-  p { margin: 0; font-weight: 700; font-size: 1.1rem; }
+  p {
+    margin: 0;
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
 }
 
 .stockAlert {
@@ -114,7 +125,7 @@
 .valueCell {
   text-align: right;
   font-weight: 700;
-  font-family: 'Inter', monospace;
+  font-family: "Inter", monospace;
   color: #ddd;
 }
 
@@ -165,8 +176,16 @@
 }
 
 .totalInfo {
-  p { color: #888; margin-bottom: 5px; font-weight: 500; }
-  h3 { margin: 0; font-size: 1.8rem; font-weight: 800; }
+  p {
+    color: #888;
+    margin-bottom: 5px;
+    font-weight: 500;
+  }
+  h3 {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 800;
+  }
 }
 
 .totalValue {
@@ -233,23 +252,59 @@
   border: 1px dashed rgba(255, 255, 255, 0.1);
 }
 
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
 @keyframes modalSlideUp {
-  from { opacity: 0; transform: translateY(40px) scale(0.95); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 @media (max-width: 768px) {
-  .modalContent { padding: 30px 20px; border-radius: 24px; }
-  .headerRow { display: none; }
+  .modalContent {
+    padding: 30px 20px;
+    border-radius: 24px;
+  }
+  .headerRow {
+    display: none;
+  }
   .itemRow {
     grid-template-columns: 30px 1fr 1fr;
-    grid-template-areas: 
+    grid-template-areas:
       "check info info"
       "check qty price"
       "check total delete";
     gap: 15px;
   }
-  .footerActions { flex-direction: column; align-items: stretch; gap: 25px; }
-  .actionButtons { flex-direction: column; }
+  .footerActions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 25px;
+  }
+  .actionButtons {
+    flex-direction: column;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
 }
