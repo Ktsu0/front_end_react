@@ -26,8 +26,16 @@ import { useAuth } from "./../../service/context/authProvider";
 
 const CardsPage = () => {
   // Hooks de Dados e Erro
-  const { cards, addCard, editCard, deleteCard, fetchCards, loading, error } =
-    useCards("series"); // Assumindo que useCards é seu hook de Séries
+  const {
+    cards,
+    addCard,
+    editCard,
+    deleteCard,
+    fetchCards,
+    loading,
+    error,
+    addAvaliacao,
+  } = useCards();
 
   // Lógica de Tratamento de Erro Centralizado
   const { isAuthError, handleApiError } = useAuthError();
@@ -113,6 +121,24 @@ const CardsPage = () => {
     }
   };
 
+  const handleRate = async (id, avaliacao) => {
+    try {
+      await addAvaliacao(id, avaliacao);
+      await fetchCards(); // Recarrega para mostrar a nova média
+      setStatus({
+        show: true,
+        message: "Obrigado por avaliar!",
+        type: "success",
+      });
+    } catch (err) {
+      setStatus({
+        show: true,
+        message: "Erro ao avaliar: " + err.message,
+        type: "error",
+      });
+    }
+  };
+
   const handleAdd = async (newCardWithId) => {
     try {
       await addCard(newCardWithId);
@@ -182,6 +208,7 @@ const CardsPage = () => {
                 onAddToCart={adicionarAoCarrinho}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
+                onRate={handleRate}
                 isAdmin={isAdmin}
               />
             ))}

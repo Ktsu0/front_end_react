@@ -8,29 +8,29 @@
 
 .cardsContainer {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 30px;
-  padding: 120px 5vw 50px;
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+  gap: 2vw;
+  padding: 12vh 5vw 5vh;
   width: 100%;
-  max-width: 1600px;
+  max-width: 95vw;
   margin: 0 auto;
   min-height: 60vh;
 
   @media (max-width: 1200px) {
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    gap: 1.5vw;
   }
 
   @media (max-width: 768px) {
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    padding: 100px 4vw 40px;
-    gap: 15px;
+    grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+    padding: 10vh 4vw 4vh;
+    gap: 1.5vw;
   }
 
   @media (max-width: 480px) {
     grid-template-columns: repeat(2, 1fr); // Dois cards lado a lado no celular
-    padding: 90px 3vw 30px;
-    gap: 12px;
+    padding: 10vh 3vw 3vh;
+    gap: 2vw;
   }
 }
 
@@ -40,20 +40,20 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 20px;
+  gap: 2vh;
   padding: 5vh 0;
   animation: fadeIn 0.6s ease-out;
 }
 
 .noCardsMessage {
   text-align: center;
-  max-width: 500px;
-  margin-bottom: 10px;
+  max-width: 80%;
+  margin-bottom: 2vh;
 
   h2 {
-    font-size: 2rem;
+    font-size: clamp(1.5rem, 5vw, 2.5rem);
     font-weight: 900;
-    margin-bottom: 10px;
+    margin-bottom: 1vh;
     background: linear-gradient(135deg, #fff 0%, #6a4fff 100%);
     background-clip: text;
     -webkit-background-clip: text;
@@ -69,14 +69,20 @@
 
 .centeredAdd {
   width: 100%;
-  max-width: 250px; // Aligned with min-card size
+  max-width: 18rem; // Aligned with min-card size
   display: flex;
   justify-content: center;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(3vh);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Modal and Global tweaks might be handled elsewhere, 

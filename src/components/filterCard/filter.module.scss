@@ -12,7 +12,7 @@
 
 .toggleButton {
   position: fixed;
-  top: 50%;
+  top: 15%;
   right: 0;
   transform: translateY(-50%);
   z-index: 2001;
@@ -25,7 +25,7 @@
   font-size: 1.8rem;
   box-shadow: -4px 0 20px rgba(106, 79, 255, 0.4);
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  
+
   &:hover {
     padding-right: 2.5vw;
     background: #8c75ff;
@@ -126,7 +126,7 @@
   font-weight: 700;
   font-size: 1.7vh;
   transition: all 0.3s ease;
-  
+
   &:hover {
     background: #e74c3c;
     color: #fff;
@@ -140,8 +140,12 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* Scrollbar para o painel */

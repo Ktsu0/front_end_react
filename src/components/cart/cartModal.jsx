@@ -53,8 +53,8 @@ const CartModal = ({ onClose, fetchCards }) => {
   const isCarrinhoVazio = carrinho.length === 0;
 
   return (
-    <div className={styles.modalOverlay}>
-      <div className={styles.modalContent}>
+    <div className={styles.modalOverlay} onClick={onClose}>
+      <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         <button className={styles.closeButton} onClick={onClose} title="Fechar">
           ✕
         </button>
@@ -82,7 +82,9 @@ const CartModal = ({ onClose, fetchCards }) => {
                       onChange={() => handleToggleSelect(item)}
                     />
                     <div className={styles.itemInfo}>
-                      <p>{item.titulo}</p>
+                      <p translate="no" className="notranslate">
+                        {item.titulo}
+                      </p>
                       <p className={styles.stockAlert}>
                         Disponível: {item.estoqueDisponivel}
                       </p>

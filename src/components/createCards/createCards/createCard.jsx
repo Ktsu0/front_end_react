@@ -1,4 +1,7 @@
+import { useState } from "react";
 import styles from "./createCard.module.scss";
+import { FaStar } from "react-icons/fa";
+import RatingModal from "../../rating/ratingModal";
 
 const CreateCard = ({
   id,
@@ -12,8 +15,12 @@ const CreateCard = ({
   onAddToCart,
   onEdit,
   onDelete,
+  onRate,
   isAdmin,
+  avaliacao,
+  votos,
 }) => {
+  const [showRatingModal, setShowRatingModal] = useState(false);
   const cardData = {
     id,
     titulo,
@@ -39,10 +46,12 @@ const CreateCard = ({
 
         {!isAvailable && <div className={styles.stockBadge}>Esgotado</div>}
 
-        <img src={imagem} alt={titulo} loading="lazy" />
+        <img src={imagem} alt={titulo} loading="lazy" translate="no" />
 
         <div className={styles.infoOverlay}>
-          <h3>{titulo}</h3>
+          <h3 translate="no" className="notranslate">
+            {titulo}
+          </h3>
 
           <div className={styles.metaInfo}>
             {meta?.temporada && <span>{meta.temporada}</span>}
@@ -53,6 +62,22 @@ const CreateCard = ({
             <small>R$</small>{" "}
             {valorUnitario ? valorUnitario.toFixed(2) : "0.00"}
           </div>
+        </div>
+
+        <div
+          className={styles.ratingInfo}
+          title={
+            votos > 0
+              ? `Média: ${avaliacao} (${votos} votos)`
+              : "Ainda não avaliado"
+          }
+          onClick={(e) => {
+            console.log("Clique na estrela acionado!");
+            e.stopPropagation();
+            setShowRatingModal(true);
+          }}
+        >
+          <FaStar className={styles.starIcon} />
         </div>
 
         <div className={styles.cardActions}>
@@ -93,10 +118,18 @@ const CreateCard = ({
         </div>
 
         <div className={styles.sinopseBox}>
-          <h4>{titulo}</h4>
           <p>{detalhes}</p>
         </div>
       </div>
+
+      {showRatingModal && (
+        <RatingModal
+          obraId={id}
+          titulo={titulo}
+          onClose={() => setShowRatingModal(false)}
+          onRate={onRate}
+        />
+      )}
     </div>
   );
 };

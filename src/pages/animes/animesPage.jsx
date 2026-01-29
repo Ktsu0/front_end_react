@@ -18,8 +18,16 @@ import CreateCard from "./../../components/createCards/createCards/createCard";
 
 const AnimePage = () => {
   // Hooks de Dados e Erro
-  const { cards, addCard, editCard, deleteCard, fetchCards, loading, error } =
-    useAnimes();
+  const {
+    cards,
+    addCard,
+    editCard,
+    deleteCard,
+    fetchCards,
+    loading,
+    error,
+    addAvaliacao,
+  } = useAnimes();
 
   // Lógica de Tratamento de Erro Centralizado
   const { isAuthError, handleApiError } = useAuthError();
@@ -105,6 +113,24 @@ const AnimePage = () => {
     }
   };
 
+  const handleRate = async (id, avaliacao) => {
+    try {
+      await addAvaliacao(id, avaliacao);
+      await fetchCards();
+      setStatus({
+        show: true,
+        message: "Obrigado por avaliar!",
+        type: "success",
+      });
+    } catch (err) {
+      setStatus({
+        show: true,
+        message: "Erro ao avaliar: " + err.message,
+        type: "error",
+      });
+    }
+  };
+
   const handleAdd = async (newCardWithId) => {
     try {
       await addCard(newCardWithId);
@@ -173,6 +199,7 @@ const AnimePage = () => {
                 onAddToCart={adicionarAoCarrinho}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
+                onRate={handleRate}
                 isAdmin={isAdmin}
               />
             ))}
