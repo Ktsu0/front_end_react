@@ -128,6 +128,17 @@ const LoginModal = ({ onClose, onLoginSuccess }) => {
                   required
                 />
               </label>
+
+              <label>
+                CEP:
+                <input
+                  type="text"
+                  value={form.cep}
+                  onChange={(e) => form.setCep(e.target.value)}
+                  placeholder="00000-000"
+                  required
+                />
+              </label>
             </>
           )}
 

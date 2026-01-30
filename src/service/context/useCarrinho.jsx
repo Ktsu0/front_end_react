@@ -1,8 +1,7 @@
 import { handleApiResponse } from "./../handleProtected";
 
 //
-
-const BASE_URL = "http://localhost:5000";
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 // Função utilitária para mapear o formato interno do carrinho (Mantida)
 const mapCarrinhoToAPI = (itens) =>
@@ -23,7 +22,7 @@ export async function validarCarrinho(carrinho) {
     return null;
   }
 
-  const res = await fetch(`${BASE_URL}/carrinho/validar`, {
+  const res = await fetch(`${API_BASE_URL}/carrinho/validar`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -42,7 +41,7 @@ export async function validarCarrinho(carrinho) {
 export async function finalizarCompra(carrinho) {
   const itensParaAPI = mapCarrinhoToAPI(carrinho);
 
-  const res = await fetch(`${BASE_URL}/carrinho/comprar`, {
+  const res = await fetch(`${API_BASE_URL}/carrinho/comprar`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
