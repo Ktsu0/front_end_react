@@ -50,6 +50,7 @@ const useCards = () => {
         await fetchCards();
       } catch (err) {
         setError(err.message);
+        throw err;
       }
     },
     [fetchCards],
@@ -62,6 +63,7 @@ const useCards = () => {
         await fetchCards();
       } catch (err) {
         setError(err.message);
+        throw err;
       }
     },
     [fetchCards],
@@ -73,6 +75,7 @@ const useCards = () => {
       setCards((prev) => prev.filter((c) => c.id !== id));
     } catch (err) {
       setError(err.message);
+      throw err;
     }
   }, []);
   useEffect(() => {
